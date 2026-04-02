@@ -1,0 +1,21 @@
+package com.duyvu.database.converter;
+
+import com.duyvu.database.schema.TypeLengthValue;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
+
+public class TypeLengthValueConverter implements Converter<TypeLengthValue, byte[]> {
+  @Override
+  public byte[] convert(TypeLengthValue tlv) {
+    ByteBuffer buffer = ByteBuffer.allocate(META_DATA_LENGTH + tlv.getLength()).order(ByteOrder.BIG_ENDIAN);
+
+    buffer.put(tlv.getType().getCode());
+    buffer.putInt(tlv.getLength());
+    buffer.put(tlv.getValue());
+
+    return buffer.array();
+  }
+}
