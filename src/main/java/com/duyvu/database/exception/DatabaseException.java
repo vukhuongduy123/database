@@ -1,5 +1,8 @@
 package com.duyvu.database.exception;
 
+import lombok.Getter;
+
+@Getter
 public class DatabaseException extends RuntimeException {
 	private final ErrorCode errorCode;
 
