@@ -1,12 +1,12 @@
 package com.duyvu.database;
 
-import com.duyvu.database.converter.HeaderConverter;
-import com.duyvu.database.converter.TypeLengthValueConverter;
+import com.duyvu.database.command.CreateTableCommand;
+import com.duyvu.database.engine.DatabaseEngine;
 import com.duyvu.database.schema.ColumnDefinition;
 import com.duyvu.database.schema.Header;
+import com.duyvu.database.schema.Table;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -31,10 +31,8 @@ public class Main {
 		}
 
 		Header header = new Header(columnDefinitions);
-		TypeLengthValueConverter converter = new TypeLengthValueConverter();
-		System.out.println(Arrays.toString(converter.convert(header)));
-
-		HeaderConverter headerConverter = new HeaderConverter();
-		System.out.println(headerConverter.convert(converter.convert(header)));
+		CreateTableCommand createTableCommand = CreateTableCommand.builder().name("test").header(header).build();
+		Table table = DatabaseEngine.getInstance().createTable(createTableCommand);
+		System.out.println(table);
 	}
 }
