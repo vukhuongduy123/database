@@ -1,23 +1,22 @@
 package com.duyvu.database.schema;
 
+import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
+
+import java.nio.file.Path;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
-
-import java.nio.file.Path;
-
-import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
 
 @Data
 @AllArgsConstructor
 @Builder
 @ToString
 public class Table {
-	private Header header;
-	private Path path;
+  private Header header;
+  private Path path;
 
-	public String getName() {
-		return getFileNameWithoutExtension(path);
-	}
+  public String getName() {
+    return getFileNameWithoutExtension(path);
+  }
 }

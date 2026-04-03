@@ -1,6 +1,6 @@
 package com.duyvu.database.command;
 
-import com.duyvu.database.schema.Header;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateTableCommand {
-  private String name;
-  private Header header;
+public class InsertCommand {
+  private String tableName;
+  private Map<String, Object> values;
 }

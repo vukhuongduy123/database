@@ -1,24 +1,14 @@
 package com.duyvu.database.schema;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import static com.duyvu.database.schema.Type.HEADER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-import static com.duyvu.database.schema.Type.HEADER;
+public record Header(List<ColumnDefinition> columnDefinitions) implements TypeLengthValue {
 
-@EqualsAndHashCode
-@ToString
-public class Header implements TypeLengthValue {
-  private final List<ColumnDefinition> columnDefinitions;
-
-	public Header(List<ColumnDefinition> columnDefinitions) {
-		this.columnDefinitions = columnDefinitions;
-	}
-
-	@Override
+  @Override
   public Type getType() {
     return HEADER;
   }

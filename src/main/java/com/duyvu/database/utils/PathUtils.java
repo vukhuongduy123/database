@@ -5,23 +5,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class PathUtils {
-	private PathUtils() {
-		throw new IllegalStateException("Utility class");
-	}
+  private PathUtils() {
+    throw new IllegalStateException("Utility class");
+  }
 
-	public static void createFileIfNotExists(Path path) throws IOException {
-		if (path.getParent() != null) {
-			Files.createDirectories(path.getParent());
-		}
+  public static void createFileIfNotExists(Path path) throws IOException {
+    if (path.getParent() != null) {
+      Files.createDirectories(path.getParent());
+    }
 
-		if (!Files.exists(path)) {
-			Files.createFile(path);
-		}
-	}
+    if (!Files.exists(path)) {
+      Files.createFile(path);
+    }
+  }
 
-	public static String getFileNameWithoutExtension(Path path) {
-		String fileName = path.getFileName().toString();
-		int dotIndex = fileName.lastIndexOf('.');
-		return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
-	}
+  public static String getFileNameWithoutExtension(Path path) {
+    String fileName = path.getFileName().toString();
+    int dotIndex = fileName.lastIndexOf('.');
+    return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+  }
 }
