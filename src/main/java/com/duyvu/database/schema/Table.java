@@ -7,6 +7,8 @@ import lombok.ToString;
 
 import java.nio.file.Path;
 
+import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
+
 @Data
 @AllArgsConstructor
 @Builder
@@ -14,4 +16,8 @@ import java.nio.file.Path;
 public class Table {
 	private Header header;
 	private Path path;
+
+	public String getName() {
+		return getFileNameWithoutExtension(path);
+	}
 }

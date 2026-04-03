@@ -26,4 +26,10 @@ public class PathUtils {
 			Files.createFile(path);
 		}
 	}
+
+	public static String getFileNameWithoutExtension(Path path) {
+		String fileName = path.getFileName().toString();
+		int dotIndex = fileName.lastIndexOf('.');
+		return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+	}
 }
