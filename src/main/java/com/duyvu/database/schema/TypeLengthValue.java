@@ -5,7 +5,9 @@ public interface TypeLengthValue {
 
   Type getType();
 
-  int getLength();
+  default int getLength() {
+    return getValue().length;
+  }
 
   byte[] getValue();
 }

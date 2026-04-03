@@ -1,16 +1,17 @@
-package com.duyvu.database.converter;
-
-import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
+package com.duyvu.database.reader;
 
 import com.duyvu.database.schema.ColumnDefinition;
 import com.duyvu.database.schema.Header;
 import com.duyvu.database.schema.Type;
+import lombok.SneakyThrows;
+
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.SneakyThrows;
+
+import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
 
 public class HeaderReader implements Reader<RandomAccessFile, Header> {
 

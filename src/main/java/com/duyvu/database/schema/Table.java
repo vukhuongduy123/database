@@ -1,12 +1,14 @@
 package com.duyvu.database.schema;
 
-import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
-
-import java.nio.file.Path;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +20,9 @@ public class Table {
 
   public String getName() {
     return getFileNameWithoutExtension(path);
+  }
+  
+  public List<String> getColumnNames() {
+    return header.columnDefinitions().stream().map(cd -> cd.columnName().getName()).toList();
   }
 }
