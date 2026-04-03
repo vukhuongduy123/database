@@ -19,4 +19,8 @@ public class DatabaseEngine {
 	public Table createTable(CreateTableCommand createTableCommand) {
 		return tableCommandHandler.createTable(createTableCommand);
 	}
+	
+	public Table readTable(String tableName) {
+		return tableCommandHandler.getTable(tableName);
+	}
 }

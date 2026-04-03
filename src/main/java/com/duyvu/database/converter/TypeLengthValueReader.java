@@ -7,9 +7,9 @@ import java.nio.ByteOrder;
 
 import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
 
-public class TypeLengthValueConverter implements Converter<TypeLengthValue, byte[]> {
+public class TypeLengthValueReader implements Reader<TypeLengthValue, byte[]> {
   @Override
-  public byte[] convert(TypeLengthValue tlv) {
+  public byte[] read(TypeLengthValue tlv) {
     ByteBuffer buffer = ByteBuffer.allocate(META_DATA_LENGTH + tlv.getLength()).order(ByteOrder.BIG_ENDIAN);
 
     buffer.put(tlv.getType().getCode());

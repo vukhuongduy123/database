@@ -1,7 +1,8 @@
 package com.duyvu.database.engine;
 
 import com.duyvu.database.command.CreateTableCommand;
-import com.duyvu.database.converter.TypeLengthValueConverter;
+import com.duyvu.database.converter.HeaderReader;
+import com.duyvu.database.converter.TypeLengthValueReader;
 import com.duyvu.database.exception.DatabaseException;
 import com.duyvu.database.exception.ErrorCode;
 import com.duyvu.database.schema.Table;
@@ -15,29 +16,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 class TableCommandHandler {
+	private Path getTablePath(String tableName) {
+		return Paths.get(EnvironmentUtils.getDatabasePath(), tableName + ".bin");
+	}
+	
 	@SneakyThrows
 	void saveTableToFile(Table table) {
 		FileHandler.getInstance().addFileHandler(table.getPath());
 		RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
 
 		raf.seek(0);
-		TypeLengthValueConverter converter = new TypeLengthValueConverter();
-		byte[] data = converter.convert(table.getHeader());
+		TypeLengthValueReader converter = new TypeLengthValueReader();
+		byte[] data = converter.read(table.getHeader());
 		raf.write(data);
 	}
 
 	Table createTable(CreateTableCommand createTableCommand) {
-		String databasePath = EnvironmentUtils.getDatabasePath();
-		Path tablePath = Paths.get(databasePath, createTableCommand.getName() + ".bin");
+		Path tablePath = getTablePath(createTableCommand.getName());
 
-		if (PathUtils.isFile(tablePath)) {
-			throw new IllegalArgumentException("Table path is not a file");
+		if (Files.exists(tablePath)) {
+			throw new DatabaseException(ErrorCode.TABLE_NAME_ALREADY_EXIST);
 		}
-
 		try {
-			if (Files.exists(tablePath)) {
-				throw new DatabaseException(ErrorCode.TABLE_NAME_ALREADY_EXIST);
-			}
 			PathUtils.createFileIfNotExists(tablePath);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to create table file", e);
@@ -46,5 +46,13 @@ class TableCommandHandler {
 
 		saveTableToFile(table);
 		return table;
+	}
+	
+	Table getTable(String tableName) {
+		Path tablePath = getTablePath(tableName);
+		RandomAccessFile raf = FileHandler.getInstance().getFileHandler(tablePath);
+		
+		HeaderReader headerReader = new HeaderReader();
+		return new Table(headerReader.read(raf), tablePath);
 	}
 }

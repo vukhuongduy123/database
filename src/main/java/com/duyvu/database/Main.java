@@ -34,5 +34,7 @@ public class Main {
 		CreateTableCommand createTableCommand = CreateTableCommand.builder().name("test").header(header).build();
 		Table table = DatabaseEngine.getInstance().createTable(createTableCommand);
 		System.out.println(table);
+		table = DatabaseEngine.getInstance().readTable("test");
+		System.out.println(table);
 	}
 }
