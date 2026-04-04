@@ -6,6 +6,7 @@ import com.duyvu.database.command.SelectCommand;
 import com.duyvu.database.engine.DatabaseEngine;
 import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.evaluator.OperandNode;
+import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.ColumnDefinition;
 import com.duyvu.database.schema.Header;
@@ -62,8 +63,11 @@ public class Main {
     }
     Instant end = Instant.now();
     System.out.println("Time: " + Duration.between(start, end));
+    Node whereClause = new OperandNode("id", OperandNode.Operand.GT, new RecordValue(2_000_000));
+    DeleteResult deleteResult = DatabaseEngine.getInstance().delete(new SelectCommand("test", whereClause));
+    log.info("Delete: {}", deleteResult);
 
-    Node whereClause = new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500));
+    whereClause = new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500));
     
     SelectResult selectResult = DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
     System.out.println(selectResult.rows().getFirst());

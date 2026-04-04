@@ -3,6 +3,7 @@ package com.duyvu.database.engine;
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
+import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.Table;
 
@@ -13,6 +14,10 @@ public class DatabaseEngine {
 
   public void insert(InsertCommand insertCommand) {
     tableCommandHandler.insert(insertCommand);
+  }
+
+  public DeleteResult delete(SelectCommand selectCommand) {
+    return tableCommandHandler.delete(selectCommand);
   }
 
   private static final class InstanceHolder {
