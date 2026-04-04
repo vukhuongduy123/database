@@ -3,8 +3,10 @@ package com.duyvu.database.engine;
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
+import com.duyvu.database.command.UpdateCommand;
 import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
+import com.duyvu.database.result.UpdateResult;
 import com.duyvu.database.schema.Table;
 
 public class DatabaseEngine {
@@ -38,5 +40,9 @@ public class DatabaseEngine {
 
   public SelectResult select(SelectCommand selectCommand) {
     return tableCommandHandler.select(selectCommand);
+  }
+  
+  public UpdateResult update(UpdateCommand updateCommand) {
+    return tableCommandHandler.update(updateCommand);
   }
 }

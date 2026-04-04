@@ -3,6 +3,7 @@ package com.duyvu.database.engine;
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
+import com.duyvu.database.command.UpdateCommand;
 import com.duyvu.database.evaluator.EvaluationContext;
 import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.exception.DatabaseException;
@@ -12,6 +13,7 @@ import com.duyvu.database.reader.RecordsValueReader;
 import com.duyvu.database.reader.TypeLengthValueReader;
 import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
+import com.duyvu.database.result.UpdateResult;
 import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.LRUCache;
@@ -89,8 +91,8 @@ class TableCommandHandler {
   }
 
   void insert(InsertCommand insertCommand) {
-    Table table = getTable(insertCommand.getTableName());
-    Set<String> insertColumnNames = insertCommand.getValues().keySet();
+    Table table = getTable(insertCommand.tableName());
+    Set<String> insertColumnNames = insertCommand.values().keySet();
     List<String> columnNames = table.getColumnNames();
     if (!insertColumnNames.containsAll(columnNames)) {
       throw new DatabaseException(ErrorCode.COLUMN_NAMES_NOT_EXISTS);
@@ -98,7 +100,7 @@ class TableCommandHandler {
 
     List<RecordValue> recordValues = new ArrayList<>();
     for (String columnName : columnNames) {
-      Object value = insertCommand.getValues().get(columnName);
+      Object value = insertCommand.values().get(columnName);
       recordValues.add(new RecordValue(value));
     }
     RecordsValue recordsValue = new RecordsValue(Type.RECORD, recordValues, UNKNOWN_OFFSET);
@@ -143,18 +145,39 @@ class TableCommandHandler {
   @SneakyThrows
   DeleteResult delete(SelectCommand selectCommand) {
     SelectResult selectResult = select(selectCommand);
-    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(getTable(selectCommand.tableName()).getPath());
-    
-    for (Row row : selectResult.rows()) {
+    deleteRows(selectCommand.tableName(), selectResult.rows());
+
+    return new DeleteResult(selectCommand.tableName(), selectResult.rows().size());
+  }
+  
+  void deleteRows(String tableName, List<Row> rows) throws IOException {
+    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(getTable(tableName).getPath());
+    for (Row row : rows) {
       long rowOffset = row.getOffset();
       if (rowOffset == UNKNOWN_OFFSET) {
         throw new DatabaseException(ErrorCode.UNKNOWN_OFFSET);
       }
-      
+
       raf.seek(rowOffset);
       raf.writeByte(Type.DELETED_RECORD.getCode());
     }
+  }
+  
+  @SneakyThrows
+  UpdateResult update(UpdateCommand updateCommand) {
+    SelectResult selectResult = select(new SelectCommand(updateCommand.tableName(), updateCommand.whereExpression()));
 
-    return new DeleteResult(selectCommand.tableName(), selectResult.rows().size());
+    deleteRows(updateCommand.tableName(), selectResult.rows());
+    
+    for (Row row : selectResult.rows()) {
+      Map<String, Object> values = new HashMap<>();
+      values.putAll(row.getValues());
+      values.putAll(updateCommand.newValues());
+      
+      InsertCommand insertCommand = new InsertCommand(updateCommand.tableName(), values);
+      insert(insertCommand);
+    }
+    
+    return new UpdateResult(updateCommand.tableName(), selectResult.rows().size());
   }
 }
