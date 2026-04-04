@@ -1,7 +1,5 @@
 package com.duyvu.database.engine;
 
-import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
-
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
@@ -20,13 +18,16 @@ import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
+import lombok.SneakyThrows;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import lombok.SneakyThrows;
+
+import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
 
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
@@ -136,6 +137,9 @@ class TableCommandHandler {
       }
 
       rows.add(new Row(values, recordsValue.offset()));
+      if (rows.size() >= selectCommand.limit()) {
+        break;
+      }
     }
 
     return new SelectResult(selectCommand.tableName(), rows);
