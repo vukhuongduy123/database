@@ -1,3 +1,5 @@
 package com.duyvu.database.command;
 
-public record SelectCommand(String tableName) {}
+import com.duyvu.database.evaluator.Node;
+
+public record SelectCommand(String tableName, Node whereExpression) {}

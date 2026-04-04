@@ -3,6 +3,8 @@ package com.duyvu.database.engine;
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
+import com.duyvu.database.evaluator.EvaluationContext;
+import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.exception.DatabaseException;
 import com.duyvu.database.exception.ErrorCode;
 import com.duyvu.database.reader.HeaderReader;
@@ -15,13 +17,14 @@ import com.duyvu.database.schema.Row;
 import com.duyvu.database.schema.Table;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.PathUtils;
+import lombok.SneakyThrows;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import lombok.SneakyThrows;
 
 class TableCommandHandler {
   private Path getTablePath(String tableName) {
@@ -65,6 +68,13 @@ class TableCommandHandler {
     return new Table(headerReader.read(raf), tablePath);
   }
 
+  boolean evaluateExpression(Node whereExpression, Map<String, Object> values) {
+    if (whereExpression == null) {
+      return true;
+    }
+    return whereExpression.evaluate(new EvaluationContext(values));
+  }
+
   void insert(InsertCommand insertCommand) {
     Table table = getTable(insertCommand.getTableName());
     Set<String> insertColumnNames = insertCommand.getValues().keySet();
@@ -103,6 +113,11 @@ class TableCommandHandler {
         String columnName = columnNames.get(i);
         values.put(columnName, recordsValue.recordValues().get(i).getOriginalValue());
       }
+
+      if (!evaluateExpression(selectCommand.whereExpression(), values)) {
+        continue;
+      }
+
       rows.add(new Row(values));
     }
 
