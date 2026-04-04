@@ -13,15 +13,21 @@ import java.util.List;
 public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue> {
   @Override
   @SneakyThrows
-  public RecordsValue read(RandomAccessFile file) {
-    long recordOffset = file.getFilePointer();
-    Type type = Type.fromCode(file.readByte());
+  public RecordsValue read(RandomAccessFile raf) {
+    long recordOffset = raf.getFilePointer();
+    Type type = Type.fromCode(raf.readByte());
     if (type != Type.RECORD && type != Type.DELETED_RECORD) {
       throw new IllegalArgumentException("Invalid type");
     }
-    int length = file.readInt();
+    int length = raf.readInt();
+    if (type == Type.DELETED_RECORD) {
+      raf.skipBytes(length);
+      return new RecordsValue(type, List.of(), recordOffset);
+    }
+    
     byte[] recordBytes = new byte[length];
-    if (file.read(recordBytes) < 0) {
+    int readBytes = raf.read(recordBytes);
+    if (readBytes < 0) {
       throw new IllegalStateException("Invalid record length");
     }
 

@@ -64,12 +64,19 @@ public class Main {
     Instant end = Instant.now();
     System.out.println("Time: " + Duration.between(start, end));
     Node whereClause = new OperandNode("id", OperandNode.Operand.GT, new RecordValue(2_000_000));
+    start = Instant.now();
     DeleteResult deleteResult = DatabaseEngine.getInstance().delete(new SelectCommand("test", whereClause));
+    end = Instant.now();
+    System.out.println("Time Delete: " + Duration.between(start, end));
     log.info("Delete: {}", deleteResult);
 
+    
     whereClause = new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500));
     
+    start = Instant.now();
     SelectResult selectResult = DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
+    end = Instant.now();
+    System.out.println("Time Select: " + Duration.between(start, end));
     System.out.println(selectResult.rows().getFirst());
     System.out.println(selectResult.rows().getLast());
     System.out.println(selectResult.rows().size());
