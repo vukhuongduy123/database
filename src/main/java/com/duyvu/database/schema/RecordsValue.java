@@ -4,8 +4,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-public record RecordsValue(Type type, List<RecordValue> recordValues, long offset) implements TypeLengthValue {
+public record RecordsValue(Type type, List<RecordValue> recordValues, long offset)
+    implements TypeLengthValue {
   public static final long UNKNOWN_OFFSET = -1;
+
   @Override
   public Type getType() {
     return type;

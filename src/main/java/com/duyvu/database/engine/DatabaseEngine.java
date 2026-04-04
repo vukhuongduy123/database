@@ -41,7 +41,7 @@ public class DatabaseEngine {
   public SelectResult select(SelectCommand selectCommand) {
     return tableCommandHandler.select(selectCommand);
   }
-  
+
   public UpdateResult update(UpdateCommand updateCommand) {
     return tableCommandHandler.update(updateCommand);
   }

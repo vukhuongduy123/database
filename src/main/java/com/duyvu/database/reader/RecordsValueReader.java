@@ -3,12 +3,11 @@ package com.duyvu.database.reader;
 import com.duyvu.database.schema.RecordValue;
 import com.duyvu.database.schema.RecordsValue;
 import com.duyvu.database.schema.Type;
-import lombok.SneakyThrows;
-
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.SneakyThrows;
 
 public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue> {
   @Override
@@ -24,7 +23,7 @@ public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue
       raf.skipBytes(length);
       return new RecordsValue(type, List.of(), recordOffset);
     }
-    
+
     byte[] recordBytes = new byte[length];
     int readBytes = raf.read(recordBytes);
     if (readBytes < 0) {

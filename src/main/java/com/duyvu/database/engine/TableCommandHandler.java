@@ -1,5 +1,7 @@
 package com.duyvu.database.engine;
 
+import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
+
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
@@ -18,20 +20,17 @@ import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
-import lombok.SneakyThrows;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-
-import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
+import lombok.SneakyThrows;
 
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
-  
+
   private Path getTablePath(String tableName) {
     return Paths.get(EnvironmentUtils.getDatabasePath(), tableName + ".bin");
   }
@@ -42,7 +41,7 @@ class TableCommandHandler {
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(tablePath);
 
     Table table = new Table(header, tablePath, 0);
-    
+
     raf.seek(0);
     TypeLengthValueReader reader = new TypeLengthValueReader();
     byte[] data = reader.read(table.getHeader());
@@ -62,10 +61,10 @@ class TableCommandHandler {
     } catch (Exception e) {
       throw new RuntimeException("Failed to create table file", e);
     }
-    
+
     return saveTableToFile(tablePath, createTableCommand.getHeader());
   }
-  
+
   @SneakyThrows
   Table getTable(String tableName) {
     if (!tableCache.containsKey(tableName)) {
@@ -76,7 +75,7 @@ class TableCommandHandler {
       Table table = new Table(headerReader.read(raf), tablePath, raf.getFilePointer());
       tableCache.put(tableName, table);
     }
-    
+
     Table table = tableCache.get(tableName);
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
     raf.seek(table.getOffset());
@@ -149,7 +148,7 @@ class TableCommandHandler {
 
     return new DeleteResult(selectCommand.tableName(), selectResult.rows().size());
   }
-  
+
   void deleteRows(String tableName, List<Row> rows) throws IOException {
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(getTable(tableName).getPath());
     for (Row row : rows) {
@@ -162,22 +161,23 @@ class TableCommandHandler {
       raf.writeByte(Type.DELETED_RECORD.getCode());
     }
   }
-  
+
   @SneakyThrows
   UpdateResult update(UpdateCommand updateCommand) {
-    SelectResult selectResult = select(new SelectCommand(updateCommand.tableName(), updateCommand.whereExpression()));
+    SelectResult selectResult =
+        select(new SelectCommand(updateCommand.tableName(), updateCommand.whereExpression()));
 
     deleteRows(updateCommand.tableName(), selectResult.rows());
-    
+
     for (Row row : selectResult.rows()) {
       Map<String, Object> values = new HashMap<>();
       values.putAll(row.getValues());
       values.putAll(updateCommand.newValues());
-      
+
       InsertCommand insertCommand = new InsertCommand(updateCommand.tableName(), values);
       insert(insertCommand);
     }
-    
+
     return new UpdateResult(updateCommand.tableName(), selectResult.rows().size());
   }
 }

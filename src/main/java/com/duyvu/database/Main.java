@@ -12,14 +12,13 @@ import com.duyvu.database.schema.ColumnDefinition;
 import com.duyvu.database.schema.Header;
 import com.duyvu.database.schema.RecordValue;
 import com.duyvu.database.schema.Table;
-import lombok.extern.log4j.Log4j2;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {
@@ -58,23 +57,25 @@ public class Main {
       if (i % 10000 == 0) {
         log.info("Insert: {}", i);
       }
-      InsertCommand insertCommand = new InsertCommand("test", Map.of("id", i, "name", UUID.randomUUID().toString()));
+      InsertCommand insertCommand =
+          new InsertCommand("test", Map.of("id", i, "name", UUID.randomUUID().toString()));
       DatabaseEngine.getInstance().insert(insertCommand);
     }
     Instant end = Instant.now();
     System.out.println("Time: " + Duration.between(start, end));
     Node whereClause = new OperandNode("id", OperandNode.Operand.GT, new RecordValue(2_000_000));
     start = Instant.now();
-    DeleteResult deleteResult = DatabaseEngine.getInstance().delete(new SelectCommand("test", whereClause));
+    DeleteResult deleteResult =
+        DatabaseEngine.getInstance().delete(new SelectCommand("test", whereClause));
     end = Instant.now();
     System.out.println("Time Delete: " + Duration.between(start, end));
     log.info("Delete: {}", deleteResult);
 
-    
     whereClause = new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500));
-    
+
     start = Instant.now();
-    SelectResult selectResult = DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
+    SelectResult selectResult =
+        DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
     end = Instant.now();
     System.out.println("Time Select: " + Duration.between(start, end));
     System.out.println(selectResult.rows().getFirst());
