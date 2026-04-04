@@ -11,11 +11,9 @@ import com.duyvu.database.reader.HeaderReader;
 import com.duyvu.database.reader.RecordsValueReader;
 import com.duyvu.database.reader.TypeLengthValueReader;
 import com.duyvu.database.result.SelectResult;
-import com.duyvu.database.schema.RecordValue;
-import com.duyvu.database.schema.RecordsValue;
-import com.duyvu.database.schema.Row;
-import com.duyvu.database.schema.Table;
+import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
+import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
 import lombok.SneakyThrows;
 
@@ -27,19 +25,25 @@ import java.nio.file.Paths;
 import java.util.*;
 
 class TableCommandHandler {
+  private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
+  
   private Path getTablePath(String tableName) {
     return Paths.get(EnvironmentUtils.getDatabasePath(), tableName + ".bin");
   }
 
   @SneakyThrows
-  void saveTableToFile(Table table) {
-    FileHandler.getInstance().addFileHandler(table.getPath());
-    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
+  Table saveTableToFile(Path tablePath, Header header) {
+    FileHandler.getInstance().addFileHandler(tablePath);
+    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(tablePath);
 
+    Table table = new Table(header, tablePath, 0);
+    
     raf.seek(0);
     TypeLengthValueReader reader = new TypeLengthValueReader();
     byte[] data = reader.read(table.getHeader());
     raf.write(data);
+    table.setOffset(raf.getFilePointer());
+    return table;
   }
 
   Table createTable(CreateTableCommand createTableCommand) {
@@ -53,19 +57,25 @@ class TableCommandHandler {
     } catch (Exception e) {
       throw new RuntimeException("Failed to create table file", e);
     }
-    Table table = new Table(createTableCommand.getHeader(), tablePath);
-
-    saveTableToFile(table);
-    return table;
+    
+    return saveTableToFile(tablePath, createTableCommand.getHeader());
   }
-
-  // TODO: Implement cache for this
+  
+  @SneakyThrows
   Table getTable(String tableName) {
-    Path tablePath = getTablePath(tableName);
-    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(tablePath);
+    if (!tableCache.containsKey(tableName)) {
+      Path tablePath = getTablePath(tableName);
+      RandomAccessFile raf = FileHandler.getInstance().getFileHandler(tablePath);
 
-    HeaderReader headerReader = new HeaderReader();
-    return new Table(headerReader.read(raf), tablePath);
+      HeaderReader headerReader = new HeaderReader();
+      Table table = new Table(headerReader.read(raf), tablePath, raf.getFilePointer());
+      tableCache.put(tableName, table);
+    }
+    
+    Table table = tableCache.get(tableName);
+    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
+    raf.seek(table.getOffset());
+    return table;
   }
 
   boolean evaluateExpression(Node whereExpression, Map<String, Object> values) {
