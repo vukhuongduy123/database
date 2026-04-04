@@ -45,32 +45,32 @@ public class OperandNode implements Node {
         String v = (String) recordValue.getOriginalValue();
         String c = (String) compareValue;
 
-        yield compare(operand, c, v);
+        yield compare(operand, v, c);
       }
       case INT -> {
         Integer v = (int) recordValue.getOriginalValue();
         Integer c = (int) compareValue;
 
-        yield compare(operand, c, v);
+        yield compare(operand, v, c);
       }
 
       case LONG -> {
         Long v = (long) recordValue.getOriginalValue();
         Long c = (long) compareValue;
 
-        yield compare(operand, c, v);
+        yield compare(operand, v, c);
       }
       case DOUBLE -> {
         Double v = (double) recordValue.getOriginalValue();
         Double c = (double) compareValue;
 
-        yield compare(operand, c, v);
+        yield compare(operand, v, c);
       }
       case FLOAT -> {
         Float v = (float) recordValue.getOriginalValue();
         Float c = (float) compareValue;
 
-        yield compare(operand, c, v);
+        yield compare(operand, v, c);
       }
       default -> throw new IllegalArgumentException("Unsupported type: " + recordValue.getType());
     };

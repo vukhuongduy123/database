@@ -6,6 +6,7 @@ import com.duyvu.database.command.SelectCommand;
 import com.duyvu.database.engine.DatabaseEngine;
 import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.evaluator.OperandNode;
+import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.ColumnDefinition;
 import com.duyvu.database.schema.Header;
 import com.duyvu.database.schema.RecordValue;
@@ -52,7 +53,6 @@ public class Main {
 
     Instant start = Instant.now();
     for (int i = 0; i < 1000_000; i++) {
-      log.info("Insert {}", i);
       InsertCommand insertCommand = new InsertCommand("test", Map.of("id", i, "name", "test"));
       DatabaseEngine.getInstance().insert(insertCommand);
     }
@@ -61,6 +61,9 @@ public class Main {
 
     Node whereClause = new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500));
     
-    DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
+    SelectResult selectResult = DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
+    System.out.println(selectResult.rows().getFirst());
+    System.out.println(selectResult.rows().getLast());
+    System.out.println(selectResult.rows().size());
   }
 }
