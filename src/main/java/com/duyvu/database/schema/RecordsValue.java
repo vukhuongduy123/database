@@ -24,7 +24,7 @@ public record RecordsValue(List<RecordValue> recordValues) implements TypeLength
       buffer.putInt(recordValue.getLength());
       buffer.put(recordValue.getValue());
     }
-    
+
     return buffer.array();
   }
 }

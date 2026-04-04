@@ -3,12 +3,11 @@ package com.duyvu.database.reader;
 import com.duyvu.database.schema.RecordValue;
 import com.duyvu.database.schema.RecordsValue;
 import com.duyvu.database.schema.Type;
-import lombok.SneakyThrows;
-
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.SneakyThrows;
 
 public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue> {
   @Override
@@ -23,7 +22,7 @@ public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue
     if (file.read(recordBytes) < 0) {
       throw new IllegalStateException("Invalid record length");
     }
-    
+
     ByteBuffer buffer = ByteBuffer.wrap(recordBytes);
     List<RecordValue> recordValues = new ArrayList<>();
     while (buffer.hasRemaining()) {

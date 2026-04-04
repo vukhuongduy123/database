@@ -15,14 +15,13 @@ import com.duyvu.database.schema.Row;
 import com.duyvu.database.schema.Table;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.PathUtils;
-import lombok.SneakyThrows;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import lombok.SneakyThrows;
 
 class TableCommandHandler {
   private Path getTablePath(String tableName) {
@@ -73,7 +72,7 @@ class TableCommandHandler {
     if (!insertColumnNames.containsAll(columnNames)) {
       throw new DatabaseException(ErrorCode.COLUMN_NAMES_NOT_EXISTS);
     }
-    
+
     List<RecordValue> recordValues = new ArrayList<>();
     for (String columnName : columnNames) {
       Object value = insertCommand.getValues().get(columnName);
@@ -93,7 +92,7 @@ class TableCommandHandler {
   public SelectResult select(SelectCommand selectCommand) {
     Table table = getTable(selectCommand.tableName());
     List<String> columnNames = table.getColumnNames();
-    
+
     List<Row> rows = new ArrayList<>();
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
     RecordsValueReader recordsValueReader = new RecordsValueReader();
@@ -106,7 +105,7 @@ class TableCommandHandler {
       }
       rows.add(new Row(values));
     }
-    
+
     return new SelectResult(selectCommand.tableName(), rows);
   }
 }

@@ -30,7 +30,7 @@ public class DatabaseEngine {
   public Table readTable(String tableName) {
     return tableCommandHandler.getTable(tableName);
   }
-  
+
   public SelectResult select(SelectCommand selectCommand) {
     return tableCommandHandler.select(selectCommand);
   }

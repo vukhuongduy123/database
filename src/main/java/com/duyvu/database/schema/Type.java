@@ -1,10 +1,9 @@
 package com.duyvu.database.schema;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
@@ -17,7 +16,8 @@ public enum Type {
   RECORD((byte) 6),
   LONG((byte) 7),
   DOUBLE((byte) 8),
-  FLOAT((byte) 9),;
+  FLOAT((byte) 9),
+  ;
 
   private final byte code;
 

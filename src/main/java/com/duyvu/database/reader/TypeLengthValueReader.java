@@ -1,11 +1,10 @@
 package com.duyvu.database.reader;
 
-import com.duyvu.database.schema.TypeLengthValue;
+import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
 
+import com.duyvu.database.schema.TypeLengthValue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
 
 public class TypeLengthValueReader implements Reader<TypeLengthValue, byte[]> {
   @Override
