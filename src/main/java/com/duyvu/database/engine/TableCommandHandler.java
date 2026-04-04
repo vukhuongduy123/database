@@ -10,6 +10,7 @@ import com.duyvu.database.exception.ErrorCode;
 import com.duyvu.database.reader.HeaderReader;
 import com.duyvu.database.reader.RecordsValueReader;
 import com.duyvu.database.reader.TypeLengthValueReader;
+import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
@@ -23,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
 
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
@@ -98,7 +101,7 @@ class TableCommandHandler {
       Object value = insertCommand.getValues().get(columnName);
       recordValues.add(new RecordValue(value));
     }
-    RecordsValue recordsValue = new RecordsValue(recordValues);
+    RecordsValue recordsValue = new RecordsValue(Type.RECORD, recordValues, UNKNOWN_OFFSET);
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
     try {
       raf.seek(raf.length());
@@ -109,7 +112,7 @@ class TableCommandHandler {
   }
 
   @SneakyThrows
-  public SelectResult select(SelectCommand selectCommand) {
+  SelectResult select(SelectCommand selectCommand) {
     Table table = getTable(selectCommand.tableName());
     List<String> columnNames = table.getColumnNames();
 
@@ -119,6 +122,9 @@ class TableCommandHandler {
     while (raf.getFilePointer() < raf.length()) {
       Map<String, Object> values = new HashMap<>();
       RecordsValue recordsValue = recordsValueReader.read(raf);
+      if (recordsValue.type() == Type.DELETED_RECORD) {
+        continue;
+      }
       for (int i = 0; i < recordsValue.recordValues().size(); i++) {
         String columnName = columnNames.get(i);
         values.put(columnName, recordsValue.recordValues().get(i).getOriginalValue());
@@ -128,9 +134,27 @@ class TableCommandHandler {
         continue;
       }
 
-      rows.add(new Row(values));
+      rows.add(new Row(values, recordsValue.offset()));
     }
 
     return new SelectResult(selectCommand.tableName(), rows);
+  }
+
+  @SneakyThrows
+  DeleteResult delete(SelectCommand selectCommand) {
+    SelectResult selectResult = select(selectCommand);
+    RandomAccessFile raf = FileHandler.getInstance().getFileHandler(getTable(selectCommand.tableName()).getPath());
+    
+    for (Row row : selectResult.rows()) {
+      long rowOffset = row.getOffset();
+      if (rowOffset == UNKNOWN_OFFSET) {
+        throw new DatabaseException(ErrorCode.UNKNOWN_OFFSET);
+      }
+      
+      raf.seek(rowOffset);
+      raf.writeByte(Type.DELETED_RECORD.getCode());
+    }
+
+    return new DeleteResult(selectCommand.tableName(), selectResult.rows().size());
   }
 }

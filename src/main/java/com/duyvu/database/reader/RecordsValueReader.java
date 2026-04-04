@@ -3,18 +3,20 @@ package com.duyvu.database.reader;
 import com.duyvu.database.schema.RecordValue;
 import com.duyvu.database.schema.RecordsValue;
 import com.duyvu.database.schema.Type;
+import lombok.SneakyThrows;
+
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.SneakyThrows;
 
 public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue> {
   @Override
   @SneakyThrows
   public RecordsValue read(RandomAccessFile file) {
+    long recordOffset = file.getFilePointer();
     Type type = Type.fromCode(file.readByte());
-    if (type != Type.RECORD) {
+    if (type != Type.RECORD && type != Type.DELETED_RECORD) {
       throw new IllegalArgumentException("Invalid type");
     }
     int length = file.readInt();
@@ -52,6 +54,6 @@ public class RecordsValueReader implements Reader<RandomAccessFile, RecordsValue
       }
       recordValues.add(new RecordValue(value));
     }
-    return new RecordsValue(recordValues);
+    return new RecordsValue(type, recordValues, recordOffset);
   }
 }

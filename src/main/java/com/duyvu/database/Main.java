@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Log4j2
 public class Main {
@@ -52,8 +53,11 @@ public class Main {
     System.out.println(table);
 
     Instant start = Instant.now();
-    for (int i = 0; i < 1000_000; i++) {
-      InsertCommand insertCommand = new InsertCommand("test", Map.of("id", i, "name", "test"));
+    for (int i = 0; i < 10_000_000; i++) {
+      if (i % 10000 == 0) {
+        log.info("Insert: {}", i);
+      }
+      InsertCommand insertCommand = new InsertCommand("test", Map.of("id", i, "name", UUID.randomUUID().toString()));
       DatabaseEngine.getInstance().insert(insertCommand);
     }
     Instant end = Instant.now();
