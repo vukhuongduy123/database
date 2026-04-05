@@ -9,13 +9,14 @@ import com.duyvu.database.evaluator.OperandNode;
 import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
+import lombok.extern.log4j.Log4j2;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {

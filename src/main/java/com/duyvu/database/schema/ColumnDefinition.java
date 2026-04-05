@@ -1,9 +1,12 @@
 package com.duyvu.database.schema;
 
+import lombok.Data;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;
-import lombok.Data;
+
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 public record ColumnDefinition(
     ColumnName columnName, ColumnType columnType, ColumnAttribute columnAttribute)

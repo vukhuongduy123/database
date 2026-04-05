@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
 
 import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 import static com.duyvu.database.utils.Constants.PAGE_SIZE;
@@ -11,10 +12,10 @@ import static com.duyvu.database.utils.Constants.PAGE_SIZE;
 @Data
 public class Page implements TypeLengthValue {
   private long offset;
-  private RecordsValue recordValues;
+  private List<RecordsValue> recordsValues;
 
-  public Page(RecordsValue recordValues, long offset) {
-    this.recordValues = recordValues;
+  public Page(List<RecordsValue> recordsValues, long offset) {
+    this.recordsValues = recordsValues;
     this.offset = offset;
   }
 
@@ -25,13 +26,16 @@ public class Page implements TypeLengthValue {
 
   @Override
   public byte[] getValue() {
+    int size = recordsValues.stream().mapToInt(e -> e.getLength() + META_DATA_LENGTH).sum();
     ByteBuffer buffer =
-        ByteBuffer.allocate(recordValues.getLength() + META_DATA_LENGTH)
+        ByteBuffer.allocate(size + META_DATA_LENGTH)
             .order(ByteOrder.BIG_ENDIAN);
-    buffer.put(recordValues.getType().getCode());
-    buffer.putInt(recordValues.getLength());
-    buffer.put(recordValues.getValue());
-
+    for (RecordsValue recordValues : recordsValues) {
+      buffer.put(recordValues.getType().getCode());
+      buffer.putInt(recordValues.getLength());
+      buffer.put(recordValues.getValue());
+    }
+    
     return buffer.array();
   }
 

@@ -1,7 +1,5 @@
 package com.duyvu.database.engine;
 
-import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
-
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
@@ -11,7 +9,8 @@ import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.exception.DatabaseException;
 import com.duyvu.database.exception.ErrorCode;
 import com.duyvu.database.reader.HeaderReader;
-import com.duyvu.database.reader.RecordsValueReader;
+import com.duyvu.database.reader.PageOffsetLengthReader;
+import com.duyvu.database.reader.PageReader;
 import com.duyvu.database.reader.TypeLengthValueReader;
 import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
@@ -20,6 +19,9 @@ import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -27,13 +29,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
 
+import static com.duyvu.database.utils.Constants.*;
+
+@Log4j2
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
 
   private Path getTablePath(String tableName) {
     return Paths.get(EnvironmentUtils.getDatabasePath(), tableName + ".bin");
+  }
+
+  private long getLastPageOffset(Table table, RandomAccessFile raf) throws IOException {
+    long fileSize = raf.length();
+    long metadataOffset = table.getOffset();
+
+    if (metadataOffset >= fileSize) {
+      return UNKNOWN_OFFSET;
+    }
+
+    long dataSize = fileSize - metadataOffset;
+    long pageCount = dataSize / PAGE_SIZE;
+
+    if (pageCount == 0) {
+      return UNKNOWN_OFFSET;
+    }
+
+    return metadataOffset + (pageCount - 1) * PAGE_SIZE;
   }
 
   @SneakyThrows
@@ -90,6 +112,7 @@ class TableCommandHandler {
     return whereExpression.evaluate(new EvaluationContext(values));
   }
 
+  @SneakyThrows
   void insert(InsertCommand insertCommand) {
     Table table = getTable(insertCommand.tableName());
     Set<String> insertColumnNames = insertCommand.values().keySet();
@@ -112,12 +135,43 @@ class TableCommandHandler {
     }
     RecordsValue recordsValue = new RecordsValue(Type.RECORD, recordValues, UNKNOWN_OFFSET);
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
-    try {
-      raf.seek(raf.length());
-      raf.write(new TypeLengthValueReader().read(recordsValue));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+
+    long pageOffset = getLastPageOffset(table, raf);
+    if (pageOffset == UNKNOWN_OFFSET) {
+      Page page = new Page(new ArrayList<>(List.of(recordsValue)), pageOffset);
+      writePage(raf, page);
+    } else {
+      raf.seek(pageOffset);
+      PageOffsetLength pageOffsetLength = new PageOffsetLengthReader().read(raf);
+
+      if (pageOffsetLength.getFullLength() + recordsValue.getFullLength() > PAGE_SIZE) {
+        raf.skipBytes(pageOffsetLength.length());
+        writePage(raf, new Page(new ArrayList<>(List.of(recordsValue)), raf.getFilePointer()));
+      } else {
+        appendPage(raf, pageOffsetLength, recordsValue);
+      }
     }
+  }
+  
+  private void writePage(RandomAccessFile raf, Page page) throws IOException {
+    byte[] pageBytes = new TypeLengthValueReader().read(page);
+    byte[] writeBytes = new byte[PAGE_SIZE];
+    System.arraycopy(pageBytes, 0, writeBytes, 0, pageBytes.length);
+    raf.write(writeBytes);
+  }
+  
+  private void appendPage(RandomAccessFile raf, PageOffsetLength pageOffsetLength, RecordsValue recordsValue) throws IOException {
+    int newSize = pageOffsetLength.length() + recordsValue.getFullLength();
+    byte[] recordsValueBytes = new TypeLengthValueReader().read(recordsValue);
+    
+    raf.seek(pageOffsetLength.offset());
+    // Skip type
+    raf.skipBytes(1);
+    raf.write(newSize);
+    // Seek to the current end of the current page
+    raf.skipBytes(newSize);
+    
+    raf.write(recordsValueBytes);
   }
 
   @SneakyThrows
@@ -127,25 +181,27 @@ class TableCommandHandler {
 
     List<Row> rows = new ArrayList<>();
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
-    RecordsValueReader recordsValueReader = new RecordsValueReader();
+    PageReader pageReader = new PageReader();
     while (raf.getFilePointer() < raf.length()) {
       Map<String, Object> values = new HashMap<>();
-      RecordsValue recordsValue = recordsValueReader.read(raf);
-      if (recordsValue.type() == Type.DELETED_RECORD) {
-        continue;
-      }
-      for (int i = 0; i < recordsValue.recordValues().size(); i++) {
-        String columnName = columnNames.get(i);
-        values.put(columnName, recordsValue.recordValues().get(i).getOriginalValue());
-      }
+      Page page = pageReader.read(raf);
+      for (RecordsValue recordsValue : page.getRecordsValues()) {
+        if (recordsValue.type() == Type.DELETED_RECORD) {
+          continue;
+        }
+        for (int i = 0; i < recordsValue.recordValues().size(); i++) {
+          String columnName = columnNames.get(i);
+          values.put(columnName, recordsValue.recordValues().get(i).getOriginalValue());
+        }
 
-      if (!evaluateExpression(selectCommand.whereExpression(), values)) {
-        continue;
-      }
+        if (!evaluateExpression(selectCommand.whereExpression(), values)) {
+          continue;
+        }
 
-      rows.add(new Row(values, recordsValue.offset()));
-      if (rows.size() >= selectCommand.limit()) {
-        break;
+        rows.add(new Row(values, recordsValue.offset()));
+        if (rows.size() >= selectCommand.limit()) {
+          break;
+        }
       }
     }
 

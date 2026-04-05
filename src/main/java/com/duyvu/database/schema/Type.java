@@ -1,12 +1,15 @@
 package com.duyvu.database.schema;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
+@Log4j2
 public enum Type {
   HEADER((byte) 1),
   COLUMN_DEFINITION((byte) 2),
@@ -18,7 +21,7 @@ public enum Type {
   DOUBLE((byte) 8),
   FLOAT((byte) 9),
   DELETED_RECORD((byte) 10),
-  PAGE((byte) 255),
+  PAGE((byte) 127),
   ;
 
   private final byte code;
