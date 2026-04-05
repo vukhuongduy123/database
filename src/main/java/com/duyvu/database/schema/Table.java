@@ -1,13 +1,14 @@
 package com.duyvu.database.schema;
 
-import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
-
-import java.nio.file.Path;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import static com.duyvu.database.utils.PathUtils.getFileNameWithoutExtension;
 
 @Data
 @AllArgsConstructor
@@ -23,6 +24,6 @@ public class Table {
   }
 
   public List<String> getColumnNames() {
-    return header.getColumnDefinitionMap().keySet().stream().toList();
+    return header.getColumnDefinitions().stream().map(e -> e.columnName().getName()).toList();
   }
 }

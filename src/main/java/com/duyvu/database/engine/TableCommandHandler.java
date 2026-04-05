@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
 
@@ -94,8 +93,7 @@ class TableCommandHandler {
   void insert(InsertCommand insertCommand) {
     Table table = getTable(insertCommand.tableName());
     Set<String> insertColumnNames = insertCommand.values().keySet();
-    Set<String> columnNames =
-        table.getColumnNames().stream().collect(Collectors.toUnmodifiableSet());
+    List<String> columnNames = table.getColumnNames();
     if (!insertColumnNames.containsAll(columnNames)) {
       throw new DatabaseException(ErrorCode.COLUMN_NAMES_NOT_EXISTS);
     }
