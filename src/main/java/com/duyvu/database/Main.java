@@ -8,17 +8,15 @@ import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.evaluator.OperandNode;
 import com.duyvu.database.result.DeleteResult;
 import com.duyvu.database.result.SelectResult;
-import com.duyvu.database.schema.ColumnDefinition;
-import com.duyvu.database.schema.Header;
-import com.duyvu.database.schema.RecordValue;
-import com.duyvu.database.schema.Table;
+import com.duyvu.database.schema.*;
+import lombok.extern.log4j.Log4j2;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {
@@ -28,7 +26,7 @@ public class Main {
       ColumnDefinition columnDefinition =
           new ColumnDefinition(
               new ColumnDefinition.ColumnName("name"),
-              new ColumnDefinition.ColumnType(ColumnDefinition.ColumnType.STRING),
+              new ColumnDefinition.ColumnType(Type.STRING),
               new ColumnDefinition.ColumnAttribute(
                   new byte[] {ColumnDefinition.ColumnAttribute.NULLABLE}));
       columnDefinitions.add(columnDefinition);
@@ -38,7 +36,7 @@ public class Main {
       ColumnDefinition columnDefinition =
           new ColumnDefinition(
               new ColumnDefinition.ColumnName("id"),
-              new ColumnDefinition.ColumnType(ColumnDefinition.ColumnType.INT),
+              new ColumnDefinition.ColumnType(Type.INT),
               new ColumnDefinition.ColumnAttribute(
                   new byte[] {ColumnDefinition.ColumnAttribute.PRIMARY_KEY}));
       columnDefinitions.add(columnDefinition);

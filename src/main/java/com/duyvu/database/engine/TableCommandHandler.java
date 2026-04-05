@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
 
@@ -93,15 +94,20 @@ class TableCommandHandler {
   void insert(InsertCommand insertCommand) {
     Table table = getTable(insertCommand.tableName());
     Set<String> insertColumnNames = insertCommand.values().keySet();
-    List<String> columnNames = table.getColumnNames();
+    Set<String> columnNames = table.getColumnNames().stream().collect(Collectors.toUnmodifiableSet());
     if (!insertColumnNames.containsAll(columnNames)) {
       throw new DatabaseException(ErrorCode.COLUMN_NAMES_NOT_EXISTS);
     }
 
     List<RecordValue> recordValues = new ArrayList<>();
+    Map<String, ColumnDefinition> columnDefinitionMap = table.getHeader().getColumnDefinitionMap();
     for (String columnName : columnNames) {
       Object value = insertCommand.values().get(columnName);
-      recordValues.add(new RecordValue(value));
+      RecordValue recordValue = new RecordValue(value);
+      if (recordValue.getType() != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
+        throw new DatabaseException(ErrorCode.INVALID_VALUE_TYPE);
+      }
+      recordValues.add(recordValue);
     }
     RecordsValue recordsValue = new RecordsValue(Type.RECORD, recordValues, UNKNOWN_OFFSET);
     RandomAccessFile raf = FileHandler.getInstance().getFileHandler(table.getPath());
