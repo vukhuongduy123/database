@@ -1,10 +1,9 @@
 package com.duyvu.database.schema;
 
-import lombok.Data;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;
+import lombok.Data;
 
 public record ColumnDefinition(
     ColumnName columnName, ColumnType columnType, ColumnAttribute columnAttribute)
@@ -70,7 +69,6 @@ public record ColumnDefinition(
   @Data
   public static class ColumnType implements TypeLengthValue {
     private byte code;
-
 
     public ColumnType(Type type) {
       this.code = type.getCode();

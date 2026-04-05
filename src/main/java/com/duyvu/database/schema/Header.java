@@ -1,14 +1,13 @@
 package com.duyvu.database.schema;
 
-import lombok.Getter;
+import static com.duyvu.database.schema.Type.HEADER;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.duyvu.database.schema.Type.HEADER;
+import lombok.Getter;
 
 @Getter
 public class Header implements TypeLengthValue {
@@ -18,8 +17,8 @@ public class Header implements TypeLengthValue {
   public Header(List<ColumnDefinition> columnDefinitions) {
     this.columnDefinitions = columnDefinitions;
     columnDefinitionMap =
-        columnDefinitions.stream().collect(
-            Collectors.toMap(cd -> cd.columnName().getName(), cd -> cd));
+        columnDefinitions.stream()
+            .collect(Collectors.toMap(cd -> cd.columnName().getName(), cd -> cd));
   }
 
   @Override

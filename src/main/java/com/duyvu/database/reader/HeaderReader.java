@@ -1,17 +1,16 @@
 package com.duyvu.database.reader;
 
+import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
+
 import com.duyvu.database.schema.ColumnDefinition;
 import com.duyvu.database.schema.Header;
 import com.duyvu.database.schema.Type;
-import lombok.SneakyThrows;
-
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
+import lombok.SneakyThrows;
 
 public class HeaderReader implements Reader<RandomAccessFile, Header> {
 
@@ -72,7 +71,8 @@ public class HeaderReader implements Reader<RandomAccessFile, Header> {
       int typeLength = buffer.getInt();
       byte[] typeValue = new byte[typeLength];
       buffer.get(typeValue);
-      ColumnDefinition.ColumnType columnType = new ColumnDefinition.ColumnType(Type.fromCode(typeValue[0]));
+      ColumnDefinition.ColumnType columnType =
+          new ColumnDefinition.ColumnType(Type.fromCode(typeValue[0]));
 
       Type attributeType = Type.fromCode(buffer.get());
       if (attributeType != Type.INT) {

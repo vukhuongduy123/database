@@ -94,7 +94,8 @@ class TableCommandHandler {
   void insert(InsertCommand insertCommand) {
     Table table = getTable(insertCommand.tableName());
     Set<String> insertColumnNames = insertCommand.values().keySet();
-    Set<String> columnNames = table.getColumnNames().stream().collect(Collectors.toUnmodifiableSet());
+    Set<String> columnNames =
+        table.getColumnNames().stream().collect(Collectors.toUnmodifiableSet());
     if (!insertColumnNames.containsAll(columnNames)) {
       throw new DatabaseException(ErrorCode.COLUMN_NAMES_NOT_EXISTS);
     }
@@ -104,7 +105,8 @@ class TableCommandHandler {
     for (String columnName : columnNames) {
       Object value = insertCommand.values().get(columnName);
       RecordValue recordValue = new RecordValue(value);
-      if (recordValue.getType() != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
+      if (recordValue.getType()
+          != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
         throw new DatabaseException(ErrorCode.INVALID_VALUE_TYPE);
       }
       recordValues.add(recordValue);
