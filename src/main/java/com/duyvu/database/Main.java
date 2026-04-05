@@ -51,7 +51,7 @@ public class Main {
     System.out.println(table);
 
     Instant start = Instant.now();
-    for (int i = 0; i < 1_000_000; i++) {
+    for (int i = 0; i < 10_000_000; i++) {
       if (i % 10000 == 0) {
         log.info("Insert: {}", i);
       }
