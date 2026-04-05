@@ -1,13 +1,15 @@
 package com.duyvu.database.schema;
 
-import static com.duyvu.database.schema.Type.HEADER;
+import lombok.Getter;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.Getter;
+
+import static com.duyvu.database.schema.Type.HEADER;
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 @Getter
 public class Header implements TypeLengthValue {
