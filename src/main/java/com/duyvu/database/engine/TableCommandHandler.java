@@ -1,5 +1,7 @@
 package com.duyvu.database.engine;
 
+import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
+
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
@@ -18,8 +20,6 @@ import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
-import lombok.SneakyThrows;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -27,8 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
+import lombok.SneakyThrows;
 
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);

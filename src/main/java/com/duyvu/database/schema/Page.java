@@ -25,14 +25,16 @@ public class Page implements TypeLengthValue {
 
   @Override
   public byte[] getValue() {
-    ByteBuffer buffer = ByteBuffer.allocate(recordValues.getLength() + META_DATA_LENGTH).order(ByteOrder.BIG_ENDIAN);
+    ByteBuffer buffer =
+        ByteBuffer.allocate(recordValues.getLength() + META_DATA_LENGTH)
+            .order(ByteOrder.BIG_ENDIAN);
     buffer.put(recordValues.getType().getCode());
     buffer.putInt(recordValues.getLength());
     buffer.put(recordValues.getValue());
-    
+
     return buffer.array();
   }
-  
+
   public int getUnusedSpace() {
     return PAGE_SIZE - getValue().length;
   }

@@ -1,10 +1,10 @@
 package com.duyvu.database.schema;
 
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
-
-import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 public record RecordsValue(Type type, List<RecordValue> recordValues, long offset)
     implements TypeLengthValue {
