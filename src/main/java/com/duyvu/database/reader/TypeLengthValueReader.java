@@ -1,6 +1,6 @@
 package com.duyvu.database.reader;
 
-import static com.duyvu.database.schema.TypeLengthValue.META_DATA_LENGTH;
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 import com.duyvu.database.schema.TypeLengthValue;
 import java.nio.ByteBuffer;

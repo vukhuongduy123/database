@@ -1,5 +1,7 @@
 package com.duyvu.database.schema;
 
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;

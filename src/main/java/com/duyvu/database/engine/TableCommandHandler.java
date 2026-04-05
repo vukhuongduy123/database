@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.duyvu.database.schema.RecordsValue.UNKNOWN_OFFSET;
+import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
 
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
