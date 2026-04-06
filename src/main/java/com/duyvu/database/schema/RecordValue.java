@@ -25,10 +25,8 @@ public class RecordValue implements TypeLengthValue {
       case STRING -> ((String) o).getBytes();
       case INT -> ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt((int) o).array();
       case LONG -> ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putLong((long) o).array();
-      case DOUBLE -> ByteBuffer.allocate(8)
-          .order(ByteOrder.BIG_ENDIAN)
-          .putDouble((double) o)
-          .array();
+      case DOUBLE ->
+          ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putDouble((double) o).array();
       case FLOAT -> ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).putFloat((float) o).array();
       default -> throw new IllegalArgumentException("Unsupported type: " + type);
     };
