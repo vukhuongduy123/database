@@ -36,8 +36,17 @@ java {
     }
 }
 
-application {
-    mainClass = "com.duyvu.database.Main"
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "com.duyvu.database.Main"
+    }
+    from(
+        configurations.runtimeClasspath.get().map {
+            if (it.isDirectory) it else zipTree(it)
+        },
+    )
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 // Spotless configuration
