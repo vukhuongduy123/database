@@ -54,10 +54,7 @@ spotless {
     java {
         googleJavaFormat("1.17.0")
         target("src/**/*.java")
-    }
-
-    kotlinGradle {
-        target("*.kts", "gradle/**/*.kts")
-        ktlint("1.0.1")
+        endWithNewline()
+        lineEndings = com.diffplug.spotless.LineEnding.UNIX
     }
 }
