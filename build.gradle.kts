@@ -49,6 +49,9 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.named<Jar>("jar") {
+    archiveFileName.set("app.jar")
+}
 // Spotless configuration
 spotless {
     java {

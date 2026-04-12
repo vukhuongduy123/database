@@ -36,7 +36,7 @@ jobs:
           username: duyvu
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          source: "target/app.jar"
+          source: "build/libs/app.jar"
           target: "/home/duyvu/database/"
 
       - name: Restart app
@@ -49,12 +49,12 @@ jobs:
           script: |
             set -e
 
-            cd /home/duyvu/app
+            cd /home/duyvu/database
 
             echo "Stop old app"
             pkill -f 'app.jar' || true
 
             echo "Start new app"
-            nohup java -jar app.jar > app.log 2>&1 &
+            nohup java -jar app.jar &
 
             echo "Deployed"
