@@ -6,16 +6,17 @@ import com.duyvu.database.command.SelectCommand;
 import com.duyvu.database.engine.DatabaseEngine;
 import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.evaluator.OperandNode;
-import com.duyvu.database.result.DeleteResult;
+import com.duyvu.database.evaluator.OperatorNode;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
+import lombok.extern.log4j.Log4j2;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {
@@ -60,15 +61,11 @@ public class Main {
     }
     Instant end = Instant.now();
     System.out.println("Time: " + Duration.between(start, end));
-    Node whereClause = new OperandNode("id", OperandNode.Operand.GT, new RecordValue(2_000_000));
-    start = Instant.now();
-    DeleteResult deleteResult =
-        DatabaseEngine.getInstance().delete(new SelectCommand("test", whereClause));
-    end = Instant.now();
-    System.out.println("Time Delete: " + Duration.between(start, end));
-    log.info("Delete: {}", deleteResult);
-
-    whereClause = new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500));
+    Node whereClause =
+        new OperatorNode(
+            OperatorNode.Operator.AND,
+            new OperandNode("id", OperandNode.Operand.LT, new RecordValue(999600)),
+            new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500)));
 
     start = Instant.now();
     SelectResult selectResult =
