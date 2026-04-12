@@ -62,9 +62,6 @@ jobs:
             echo "No running app found"
             fi
             
-            echo "Remove old app"
-            rm -rf *
-            
             echo "Starting new app"
             nohup java -jar app.jar &
             
