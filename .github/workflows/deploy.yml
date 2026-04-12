@@ -52,16 +52,6 @@ jobs:
             set -e
             cd /home/duyvu/database
             
-            echo "Checking old app..."
-            
-            if pgrep -f 'app.jar' > /dev/null; then
-            echo "Stopping old app"
-            pkill -f 'app.jar' || true
-            sleep 2
-            else
-            echo "No running app found"
-            fi
-            
             echo "Cleaning old files (except new jar)"
             find . -type f ! -name 'app.jar' -delete
             
