@@ -22,4 +22,20 @@ public class OperatorNode implements Node {
       case NOT -> !left.evaluate(context);
     };
   }
+
+  @Override
+  public OperandNode getOperand(String operandName) {
+    if (left != null) {
+      OperandNode found = left.getOperand(operandName);
+      if (found != null) {
+        return found;
+      }
+    }
+
+    if (right != null) {
+      return right.getOperand(operandName);
+    }
+
+    return null;
+  }
 }

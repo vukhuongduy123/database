@@ -83,7 +83,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
       if (type != Type.LONG) {
         throw new IllegalArgumentException("Invalid type");
       }
-      // skip page id length
+      // skip previous page id length
       buffer.getInt();
       long previousNodeId = buffer.getLong();
 
@@ -91,31 +91,33 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
       if (type != Type.LONG) {
         throw new IllegalArgumentException("Invalid type");
       }
-      // skip page id length
+      // skip next page id length
       buffer.getInt();
       long nextNodeId = buffer.getLong();
 
-      while (buffer.hasRemaining()) {
-        type = Type.fromCode(buffer.get());
-        if (type != Type.KEY_VALUE) {
-          throw new IllegalArgumentException("Invalid type");
-        }
-
-        type = Type.fromCode(buffer.get());
+      type = Type.fromCode(buffer.get());
+      if (type != Type.KEY_VALUE) {
+        throw new IllegalArgumentException("Invalid type");
+      }
+      int keyValueSize = buffer.getInt();
+      
+      ByteBuffer keyValueBuffer = buffer.slice().limit(keyValueSize);
+      while (keyValueBuffer.hasRemaining()) {
+        type = Type.fromCode(keyValueBuffer.get());
         if (type != Type.KEY) {
           throw new IllegalArgumentException("Invalid type");
         }
-        int keySize = buffer.getInt();
+        int keySize = keyValueBuffer.getInt();
         byte[] keyVals = new byte[keySize];
-        buffer.get(keySize);
+        keyValueBuffer.get(keyVals);
 
-        type = Type.fromCode(buffer.get());
+        type = Type.fromCode(keyValueBuffer.get());
         if (type != Type.VALUE) {
           throw new IllegalArgumentException("Invalid type");
         }
-        int valueSize = buffer.getInt();
+        int valueSize = keyValueBuffer.getInt();
         byte[] valueVals = new byte[valueSize];
-        buffer.get(valueSize);
+        keyValueBuffer.get(valueVals);
 
         keyValues.add(
             new KeyValue(new Key(ByteBuffer.wrap(keyVals)), new Value(ByteBuffer.wrap(valueVals))));

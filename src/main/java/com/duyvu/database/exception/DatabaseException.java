@@ -9,4 +9,9 @@ public class DatabaseException extends RuntimeException {
   public DatabaseException(ErrorCode errorCode) {
     this.errorCode = errorCode;
   }
+
+  public DatabaseException(ErrorCode errorCode, Throwable e) {
+    super(e);
+    this.errorCode = errorCode;
+  }
 }

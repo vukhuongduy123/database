@@ -1,11 +1,12 @@
 package com.duyvu.database.schema;
 
-import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+import lombok.Data;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.BitSet;
-import lombok.Data;
+
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 public record ColumnDefinition(
     ColumnName columnName, ColumnType columnType, ColumnAttribute columnAttribute)
@@ -97,7 +98,7 @@ public record ColumnDefinition(
     private BitSet attributes;
     public static final byte NULLABLE = 0;
     public static final byte PRIMARY_KEY = 1;
-    public static final byte UNIQUE = 2;
+    public static final byte INDEX = 2;
 
     public ColumnAttribute(byte[] attributes) {
       this.attributes = new BitSet(32);
@@ -123,6 +124,10 @@ public record ColumnDefinition(
     @Override
     public int getLength() {
       return getValue().length;
+    }
+
+    public boolean isIndex() {
+      return attributes.get(INDEX) || attributes.get(PRIMARY_KEY);
     }
 
     @Override

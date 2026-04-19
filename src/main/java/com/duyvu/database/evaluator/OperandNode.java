@@ -1,12 +1,10 @@
 package com.duyvu.database.evaluator;
 
 import com.duyvu.database.schema.RecordValue;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
-@RequiredArgsConstructor
 @Log4j2
-public class OperandNode implements Node {
+public record OperandNode(String variable, Operand operand, RecordValue recordValue) implements Node {
   public enum Operand {
     EQ,
     NEQ,
@@ -15,10 +13,6 @@ public class OperandNode implements Node {
     GTE,
     LTE
   }
-
-  private final String variable;
-  private final Operand operand;
-  private final RecordValue recordValue;
 
   @Override
   public boolean evaluate(EvaluationContext context) {
@@ -85,5 +79,13 @@ public class OperandNode implements Node {
       case GTE -> v.compareTo(c) >= 0;
       case LTE -> v.compareTo(c) <= 0;
     };
+  }
+
+  @Override
+  public OperandNode getOperand(String operandName) {
+    if (this.variable.equals(operandName)) {
+      return this;
+    }
+    return null;
   }
 }

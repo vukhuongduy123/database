@@ -1,13 +1,16 @@
 package com.duyvu.database.tree;
 
-import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
-import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
-
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.utils.FileHandler;
+import com.duyvu.database.utils.PathUtils;
 import com.duyvu.database.utils.SearchUtils;
+
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+
+import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
+import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
 
 public final class Tree {
   private final Pager pager;
@@ -18,6 +21,12 @@ public final class Tree {
   private record NodePath(InternalNode node, int childIndex) {}
 
   public Tree(Path path) {
+    try {
+      PathUtils.createFileIfNotExists(path);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    FileHandler.getInstance().addFileHandler(path);
     pager = new Pager(FileHandler.getInstance().getFileHandler(path));
   }
 
@@ -47,7 +56,7 @@ public final class Tree {
     }
   }
 
-  private void delete(Key key) {
+  public void delete(Key key) {
     if (pager.isEmpty()) {
       return;
     }
@@ -338,7 +347,7 @@ public final class Tree {
   }
 
   // TODO: validate node size
-  public boolean insert(Key key, Value value) {
+  public void insert(Key key, Value value) {
     if (pager.isEmpty()) {
       LeafNode root =
           new LeafNode(
@@ -347,7 +356,7 @@ public final class Tree {
               B_TREE_UNKNOWN_NODE_ID,
               List.of(new KeyValue(key, value)));
       pager.writePage(B_TREE_ROOT_NODE_ID, root);
-      return true;
+      return;
     }
 
     Node node = pager.readPage(B_TREE_ROOT_NODE_ID);
@@ -369,7 +378,7 @@ public final class Tree {
         SearchUtils.search(keyValues.stream().map(KeyValue::key).toList(), key);
 
     if (searchResult.found()) {
-      return false; // no duplicates
+      return; // no duplicates
     }
 
     keyValues.add(searchResult.index(), new KeyValue(key, value));
@@ -377,7 +386,7 @@ public final class Tree {
     // if not full, done
     if (!isFull(leaf)) {
       pager.writePage(leaf.getPageId(), leaf);
-      return true;
+      return;
     }
 
     // split leaf
@@ -394,7 +403,7 @@ public final class Tree {
 
       if (!isFull(parent)) {
         pager.writePage(parent.getPageId(), parent);
-        return true;
+        return;
       }
 
       SplitResult internalSplit = splitInternalAndWrite(parent);
@@ -417,8 +426,6 @@ public final class Tree {
             new ArrayList<>(List.of(leftPageId, rightPageId)));
 
     pager.writePage(B_TREE_ROOT_NODE_ID, newRoot);
-
-    return true;
   }
 
   private void insertIntoInternal(InternalNode parent, Key promoteKey, long rightPageId) {

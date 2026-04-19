@@ -1,9 +1,10 @@
 package com.duyvu.database.schema;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
@@ -37,6 +38,9 @@ public enum Type {
   }
 
   public static Type fromCode(byte code) {
+    if (!CODE_MAP.containsKey(code)) {
+      throw new IllegalArgumentException("Invalid type code " + code);
+    }
     return CODE_MAP.get(code);
   }
 }

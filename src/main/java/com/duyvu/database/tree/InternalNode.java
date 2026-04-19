@@ -1,12 +1,14 @@
 package com.duyvu.database.tree;
 
-import static com.duyvu.database.utils.Constants.B_TREE_NODE_SIZE;
-
 import com.duyvu.database.schema.Type;
+import com.duyvu.database.schema.TypeLengthValue;
+import lombok.Getter;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
-import lombok.Getter;
+
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 @Getter
 public class InternalNode extends Node {
@@ -26,7 +28,11 @@ public class InternalNode extends Node {
 
   @Override
   public byte[] getValue() {
-    ByteBuffer buffer = ByteBuffer.allocate(B_TREE_NODE_SIZE).order(ByteOrder.BIG_ENDIAN);
+    ByteBuffer buffer = ByteBuffer.allocate((Long.BYTES + META_DATA_LENGTH) // page id
+            + (Long.BYTES + META_DATA_LENGTH) * childrenIds.size() // children ids
+            + keys.stream().map(TypeLengthValue::getLength).mapToInt(e -> e + META_DATA_LENGTH).sum()) // keys
+        .order(ByteOrder.BIG_ENDIAN);
+    
     buffer.put(Type.LONG.getCode());
     buffer.putInt(Long.BYTES);
     buffer.putLong(pageId);
