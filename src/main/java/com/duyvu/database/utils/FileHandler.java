@@ -1,4 +1,6 @@
-package com.duyvu.database.engine;
+package com.duyvu.database.utils;
+
+import lombok.extern.log4j.Log4j2;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -6,10 +8,9 @@ import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-class FileHandler {
+public class FileHandler {
   private FileHandler() {
     Runtime.getRuntime()
         .addShutdownHook(

@@ -1,7 +1,5 @@
 package com.duyvu.database.engine;
 
-import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
-
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
@@ -18,15 +16,19 @@ import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.result.UpdateResult;
 import com.duyvu.database.schema.*;
 import com.duyvu.database.utils.EnvironmentUtils;
+import com.duyvu.database.utils.FileHandler;
 import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
+import lombok.SneakyThrows;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import lombok.SneakyThrows;
+
+import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
 
 class TableCommandHandler {
   private final LRUCache<String, Table> tableCache = new LRUCache<>(100);
@@ -102,8 +104,7 @@ class TableCommandHandler {
     for (String columnName : columnNames) {
       Object value = insertCommand.values().get(columnName);
       RecordValue recordValue = new RecordValue(value);
-      if (recordValue.getType()
-          != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
+      if (recordValue.getType() != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
         throw new DatabaseException(ErrorCode.INVALID_VALUE_TYPE);
       }
       recordValues.add(recordValue);
