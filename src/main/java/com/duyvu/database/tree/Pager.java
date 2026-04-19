@@ -1,13 +1,12 @@
 package com.duyvu.database.tree;
 
-import com.duyvu.database.reader.TreeNodeReader;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import static com.duyvu.database.utils.Constants.B_TREE_NODE_SIZE;
 
+import com.duyvu.database.reader.TreeNodeReader;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-
-import static com.duyvu.database.utils.Constants.B_TREE_NODE_SIZE;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 @RequiredArgsConstructor
 class Pager {
@@ -24,7 +23,7 @@ class Pager {
 
     byte[] nodeBytes = new byte[B_TREE_NODE_SIZE];
     raf.read(nodeBytes);
-    
+
     ByteBuffer buffer = ByteBuffer.wrap(nodeBytes);
     TreeNodeReader reader = new TreeNodeReader();
     return reader.read(buffer);
@@ -35,7 +34,7 @@ class Pager {
     raf.seek(pageId);
     raf.write(node.getValue());
   }
-  
+
   @SneakyThrows
   public long nextPageId() {
     return raf.length() / B_TREE_NODE_SIZE + 1;

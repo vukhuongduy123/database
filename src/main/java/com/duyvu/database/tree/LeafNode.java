@@ -1,15 +1,14 @@
 package com.duyvu.database.tree;
 
+import static com.duyvu.database.utils.Constants.B_TREE_NODE_SIZE;
+
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
-
-import static com.duyvu.database.utils.Constants.B_TREE_NODE_SIZE;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -36,7 +35,7 @@ public class LeafNode extends Node implements TypeLengthValue {
     buffer.put(Type.LONG.getCode());
     buffer.putInt(Long.BYTES);
     buffer.putLong(pageId);
-    
+
     buffer.put(Type.LONG.getCode());
     buffer.putInt(Long.BYTES);
     buffer.putLong(previousNodeId);
@@ -44,13 +43,13 @@ public class LeafNode extends Node implements TypeLengthValue {
     buffer.put(Type.LONG.getCode());
     buffer.putInt(Long.BYTES);
     buffer.putLong(nextNodeId);
-    
+
     for (KeyValue keyValue : keyValues) {
       buffer.put(keyValue.getType().getCode());
       buffer.putInt(keyValue.getLength());
       buffer.put(keyValue.getValue());
     }
-    
+
     return buffer.array();
   }
 }

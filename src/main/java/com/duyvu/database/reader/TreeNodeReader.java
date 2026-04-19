@@ -2,7 +2,6 @@ package com.duyvu.database.reader;
 
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.tree.*;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
     if (type != Type.INTERNAL_NODE && type != Type.LEAF_NODE) {
       throw new IllegalArgumentException("Invalid type");
     }
-    
+
     switch (type) {
       case Type.INTERNAL_NODE -> {
         InternalNodeReader internalNodeReader = new InternalNodeReader();
@@ -27,7 +26,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
       default -> throw new IllegalArgumentException("Invalid type");
     }
   }
-  
+
   public static class InternalNodeReader implements Reader<ByteBuffer, InternalNode> {
     @Override
     public InternalNode read(ByteBuffer data) {
@@ -43,7 +42,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
       // skip page id length
       buffer.getInt();
       long pageId = buffer.getLong();
-      
+
       while (buffer.hasRemaining()) {
         type = Type.fromCode(buffer.get());
         if (type != Type.LONG && type != Type.KEY) {
@@ -60,11 +59,10 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
           keys.add(new Key(ByteBuffer.wrap(keyVals)));
         }
       }
-      
+
       return new InternalNode(pageId, keys, childrenIds);
     }
   }
-
 
   public static class LeafNodeReader implements Reader<ByteBuffer, LeafNode> {
     @Override
@@ -118,9 +116,9 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
         int valueSize = buffer.getInt();
         byte[] valueVals = new byte[valueSize];
         buffer.get(valueSize);
-        
-        
-        keyValues.add(new KeyValue(new Key(ByteBuffer.wrap(keyVals)), new Value(ByteBuffer.wrap(valueVals))));
+
+        keyValues.add(
+            new KeyValue(new Key(ByteBuffer.wrap(keyVals)), new Value(ByteBuffer.wrap(valueVals))));
       }
 
       return new LeafNode(pageId, previousNodeId, nextNodeId, keyValues);

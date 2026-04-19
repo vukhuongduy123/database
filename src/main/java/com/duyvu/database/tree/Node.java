@@ -12,7 +12,5 @@ public abstract class Node implements TypeLengthValue {
 
   public abstract Type getType();
 
-  @Getter
-  @Setter
-  protected long pageId;
+  @Getter @Setter protected long pageId;
 }

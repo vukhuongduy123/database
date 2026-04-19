@@ -1,7 +1,6 @@
 package com.duyvu.database.utils;
 
 import com.duyvu.database.tree.SearchResult;
-
 import java.util.Collections;
 import java.util.List;
 

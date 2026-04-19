@@ -104,7 +104,8 @@ class TableCommandHandler {
     for (String columnName : columnNames) {
       Object value = insertCommand.values().get(columnName);
       RecordValue recordValue = new RecordValue(value);
-      if (recordValue.getType() != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
+      if (recordValue.getType()
+          != Type.fromCode(columnDefinitionMap.get(columnName).columnType().getValue()[0])) {
         throw new DatabaseException(ErrorCode.INVALID_VALUE_TYPE);
       }
       recordValues.add(recordValue);

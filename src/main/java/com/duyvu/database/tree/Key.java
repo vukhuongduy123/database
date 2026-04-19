@@ -2,7 +2,6 @@ package com.duyvu.database.tree;
 
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
-
 import java.nio.ByteBuffer;
 
 public record Key(ByteBuffer val) implements TypeLengthValue, Comparable<Key> {

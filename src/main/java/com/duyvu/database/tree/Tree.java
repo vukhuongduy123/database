@@ -1,14 +1,13 @@
 package com.duyvu.database.tree;
 
+import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
+import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
+
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.utils.FileHandler;
 import com.duyvu.database.utils.SearchUtils;
-
 import java.nio.file.Path;
 import java.util.*;
-
-import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
-import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
 
 public final class Tree {
   private final Pager pager;
@@ -17,7 +16,7 @@ public final class Tree {
   private static final int MIN_KEYS = (int) (Math.ceil(ORDER / 2.0) - 1);
 
   private record NodePath(InternalNode node, int childIndex) {}
-  
+
   public Tree(Path path) {
     pager = new Pager(FileHandler.getInstance().getFileHandler(path));
   }
@@ -34,7 +33,7 @@ public final class Tree {
       default -> throw new IllegalArgumentException("Unsupported node type: " + node.getType());
     }
   }
-  
+
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private boolean isUnderflow(Node node) {
     switch (node.getType()) {
@@ -54,15 +53,15 @@ public final class Tree {
     }
 
     Node node = pager.readPage(B_TREE_ROOT_NODE_ID);
-    
+
     Deque<NodePath> paths = new ArrayDeque<>();
-    
+
     while (node.getType() == Type.INTERNAL_NODE) {
       InternalNode internalNode = (InternalNode) node;
       SearchResult searchResult = SearchUtils.search(internalNode.getKeys(), key);
       int idx = searchResult.found() ? searchResult.index() + 1 : searchResult.index();
       paths.push(new NodePath(internalNode, idx));
-      
+
       node = pager.readPage(internalNode.getChildrenIds().get(idx));
     }
 
@@ -70,7 +69,8 @@ public final class Tree {
 
     // search inside leaf
     List<KeyValue> keyValues = leaf.getKeyValues();
-    SearchResult searchResult = SearchUtils.search(keyValues.stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(keyValues.stream().map(KeyValue::key).toList(), key);
     if (!searchResult.found()) {
       return;
     }
@@ -117,7 +117,8 @@ public final class Tree {
     }
   }
 
-  private void mergeWithLeftSibling(InternalNode parent, int leafIndex, LeafNode leaf, LeafNode left, Deque<NodePath> paths) {
+  private void mergeWithLeftSibling(
+      InternalNode parent, int leafIndex, LeafNode leaf, LeafNode left, Deque<NodePath> paths) {
     // 1. Move all keys from leaf → left
     left.getKeyValues().addAll(leaf.getKeyValues());
 
@@ -143,7 +144,8 @@ public final class Tree {
     handleInternalUnderflow(parent, paths);
   }
 
-  private void mergeWithRightSibling(InternalNode parent, int leafIndex, LeafNode leaf, LeafNode right, Deque<NodePath> paths) {
+  private void mergeWithRightSibling(
+      InternalNode parent, int leafIndex, LeafNode leaf, LeafNode right, Deque<NodePath> paths) {
     // 1. Move all keys from right → leaf
     leaf.getKeyValues().addAll(right.getKeyValues());
 
@@ -225,7 +227,8 @@ public final class Tree {
     }
   }
 
-  private void borrowFromLeftInternal(InternalNode parent, int index, InternalNode node, InternalNode left) {
+  private void borrowFromLeftInternal(
+      InternalNode parent, int index, InternalNode node, InternalNode left) {
     // bring separator down
     Key separator = parent.getKeys().get(index - 1);
 
@@ -245,7 +248,8 @@ public final class Tree {
     pager.writePage(parent.getPageId(), parent);
   }
 
-  private void borrowFromRightInternal(InternalNode parent, int index, InternalNode node, InternalNode right) {
+  private void borrowFromRightInternal(
+      InternalNode parent, int index, InternalNode node, InternalNode right) {
     Key separator = parent.getKeys().get(index);
 
     Key borrowedKey = right.getKeys().removeFirst();
@@ -261,7 +265,8 @@ public final class Tree {
     pager.writePage(parent.getPageId(), parent);
   }
 
-  private void mergeWithLeftInternal(InternalNode parent, int index, InternalNode node, InternalNode left) {
+  private void mergeWithLeftInternal(
+      InternalNode parent, int index, InternalNode node, InternalNode left) {
     // pull separator down
     Key separator = parent.getKeys().get(index - 1);
 
@@ -277,7 +282,8 @@ public final class Tree {
     pager.writePage(parent.getPageId(), parent);
   }
 
-  private void mergeWithRightInternal(InternalNode parent, int index, InternalNode node, InternalNode right) {
+  private void mergeWithRightInternal(
+      InternalNode parent, int index, InternalNode node, InternalNode right) {
     Key separator = parent.getKeys().get(index);
 
     node.getKeys().add(separator);
@@ -303,20 +309,22 @@ public final class Tree {
     }
   }
 
-  private void borrowFromLeftSibling(InternalNode parent, int leafIndex, LeafNode leaf, LeafNode sibling) {
+  private void borrowFromLeftSibling(
+      InternalNode parent, int leafIndex, LeafNode leaf, LeafNode sibling) {
     KeyValue borrowed = sibling.getKeyValues().removeLast();
     leaf.getKeyValues().addFirst(borrowed);
-    
+
     if (leafIndex > 0) {
       parent.getKeys().set(leafIndex - 1, leaf.getKeyValues().getFirst().key());
     }
-    
+
     pager.writePage(leaf.getPageId(), leaf);
     pager.writePage(parent.getPageId(), parent);
     pager.writePage(sibling.getPageId(), sibling);
   }
 
-  private void borrowFromRightSibling(InternalNode parent, int leafIndex, LeafNode leaf, LeafNode sibling) {
+  private void borrowFromRightSibling(
+      InternalNode parent, int leafIndex, LeafNode leaf, LeafNode sibling) {
     KeyValue borrowed = sibling.getKeyValues().removeFirst();
     leaf.getKeyValues().addLast(borrowed);
 
@@ -332,7 +340,12 @@ public final class Tree {
   // TODO: validate node size
   public boolean insert(Key key, Value value) {
     if (pager.isEmpty()) {
-      LeafNode root = new LeafNode(B_TREE_ROOT_NODE_ID, B_TREE_UNKNOWN_NODE_ID, B_TREE_UNKNOWN_NODE_ID, List.of(new KeyValue(key, value)));
+      LeafNode root =
+          new LeafNode(
+              B_TREE_ROOT_NODE_ID,
+              B_TREE_UNKNOWN_NODE_ID,
+              B_TREE_UNKNOWN_NODE_ID,
+              List.of(new KeyValue(key, value)));
       pager.writePage(B_TREE_ROOT_NODE_ID, root);
       return true;
     }
@@ -352,7 +365,8 @@ public final class Tree {
 
     // search inside leaf
     List<KeyValue> keyValues = leaf.getKeyValues();
-    SearchResult searchResult = SearchUtils.search(keyValues.stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(keyValues.stream().map(KeyValue::key).toList(), key);
 
     if (searchResult.found()) {
       return false; // no duplicates
@@ -396,8 +410,11 @@ public final class Tree {
     pager.writePage(leftPageId, oldRoot);
 
     // root split
-    InternalNode newRoot = new InternalNode(
-        B_TREE_ROOT_NODE_ID, new ArrayList<>(List.of(promoteKey)), new ArrayList<>(List.of(leftPageId, rightPageId)));
+    InternalNode newRoot =
+        new InternalNode(
+            B_TREE_ROOT_NODE_ID,
+            new ArrayList<>(List.of(promoteKey)),
+            new ArrayList<>(List.of(leftPageId, rightPageId)));
 
     pager.writePage(B_TREE_ROOT_NODE_ID, newRoot);
 
@@ -422,7 +439,8 @@ public final class Tree {
 
     List<KeyValue> halfRightKeyValues = new ArrayList<>(keyValues.subList(mid, size));
     long oldNextId = leaf.getNextNodeId();
-    LeafNode newRight = new LeafNode(pager.nextPageId(), leaf.getPageId(), oldNextId, halfRightKeyValues);
+    LeafNode newRight =
+        new LeafNode(pager.nextPageId(), leaf.getPageId(), oldNextId, halfRightKeyValues);
 
     if (oldNextId != B_TREE_UNKNOWN_NODE_ID) {
       LeafNode oldNext = (LeafNode) pager.readPage(oldNextId);
@@ -453,7 +471,7 @@ public final class Tree {
     List<Long> rightChildren = new ArrayList<>(children.subList(mid + 1, children.size()));
 
     // --- shrink left (in-place) ---
-    keys.subList(mid, size).clear();              // remove mid and right
+    keys.subList(mid, size).clear(); // remove mid and right
     children.subList(mid + 1, children.size()).clear();
 
     // --- create right node ---
@@ -466,8 +484,7 @@ public final class Tree {
 
     return new SplitResult(promoteKey, rightNode);
   }
-  
-  
+
   private LeafNode searchNode(Key key) {
     if (pager.isEmpty()) {
       return null;
@@ -491,11 +508,12 @@ public final class Tree {
     if (leaf == null) {
       return null;
     }
-    SearchResult searchResult = SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
     if (!searchResult.found()) {
       return null;
     }
-    
+
     return leaf.getKeyValues().get(searchResult.index());
   }
 
@@ -504,10 +522,12 @@ public final class Tree {
     if (leaf == null) {
       return new ArrayList<>();
     }
-    SearchResult searchResult = SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
     int index = searchResult.found() ? searchResult.index() + 1 : searchResult.index();
-    
-    List<KeyValue> keyValues = new ArrayList<>(leaf.getKeyValues().subList(index, leaf.getKeyValues().size()));
+
+    List<KeyValue> keyValues =
+        new ArrayList<>(leaf.getKeyValues().subList(index, leaf.getKeyValues().size()));
     LeafNode current = leaf;
     while (current.getNextNodeId() != B_TREE_UNKNOWN_NODE_ID) {
       current = (LeafNode) pager.readPage(current.getNextNodeId());
@@ -522,9 +542,12 @@ public final class Tree {
     if (leaf == null) {
       return new ArrayList<>();
     }
-    SearchResult searchResult = SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
 
-    List<KeyValue> keyValues = new ArrayList<>(leaf.getKeyValues().subList(searchResult.index(), leaf.getKeyValues().size()));
+    List<KeyValue> keyValues =
+        new ArrayList<>(
+            leaf.getKeyValues().subList(searchResult.index(), leaf.getKeyValues().size()));
     LeafNode current = leaf;
     while (current.getNextNodeId() != B_TREE_UNKNOWN_NODE_ID) {
       current = (LeafNode) pager.readPage(current.getNextNodeId());
@@ -540,9 +563,11 @@ public final class Tree {
       return new ArrayList<>();
     }
 
-    SearchResult searchResult = SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
 
-    List<KeyValue> keyValues = new ArrayList<>(leaf.getKeyValues().subList(0, searchResult.index()));
+    List<KeyValue> keyValues =
+        new ArrayList<>(leaf.getKeyValues().subList(0, searchResult.index()));
 
     LeafNode current = leaf;
     while (current.getPreviousNodeId() != B_TREE_UNKNOWN_NODE_ID) {
@@ -559,7 +584,8 @@ public final class Tree {
       return new ArrayList<>();
     }
 
-    SearchResult searchResult = SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
+    SearchResult searchResult =
+        SearchUtils.search(leaf.getKeyValues().stream().map(KeyValue::key).toList(), key);
 
     int index = searchResult.found() ? searchResult.index() + 1 : searchResult.index();
 
@@ -570,7 +596,7 @@ public final class Tree {
       current = (LeafNode) pager.readPage(current.getPreviousNodeId());
       keyValues.addAll(current.getKeyValues());
     }
-    
+
     // reverse once
     Collections.reverse(keyValues);
     return keyValues;
