@@ -17,6 +17,10 @@ public record Key(ByteBuffer val) implements TypeLengthValue, Comparable<Key> {
 
   @Override
   public int compareTo(Key o) {
-    return this.val.compareTo(o.val);
+    ByteBuffer a = this.val.duplicate();
+    ByteBuffer b = o.val.duplicate();
+    a.rewind();
+    b.rewind();
+    return a.compareTo(b);
   }
 }

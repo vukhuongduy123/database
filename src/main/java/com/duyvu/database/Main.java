@@ -9,13 +9,14 @@ import com.duyvu.database.evaluator.OperandNode;
 import com.duyvu.database.evaluator.OperatorNode;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
+import lombok.extern.log4j.Log4j2;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {
@@ -50,7 +51,7 @@ public class Main {
     System.out.println(table);
 
     Instant start = Instant.now();
-    for (int i = 0; i < 10_000_000; i++) {
+    for (int i = 0; i < 10_000_00; i++) {
       if (i % 10000 == 0) {
         log.info("Insert: {}", i);
       }
@@ -63,8 +64,8 @@ public class Main {
     Node whereClause =
         new OperatorNode(
             OperatorNode.Operator.AND,
-            new OperandNode("id", OperandNode.Operand.LT, new RecordValue(999600)),
-            new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(999500)));
+            new OperandNode("id", OperandNode.Operand.LT, new RecordValue(99960)),
+            new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(99950)));
 
     start = Instant.now();
     SelectResult selectResult =

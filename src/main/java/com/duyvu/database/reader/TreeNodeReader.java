@@ -94,30 +94,29 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
       // skip next page id length
       buffer.getInt();
       long nextNodeId = buffer.getLong();
-
-      type = Type.fromCode(buffer.get());
-      if (type != Type.KEY_VALUE) {
-        throw new IllegalArgumentException("Invalid type");
-      }
-      int keyValueSize = buffer.getInt();
       
-      ByteBuffer keyValueBuffer = buffer.slice().limit(keyValueSize);
-      while (keyValueBuffer.hasRemaining()) {
-        type = Type.fromCode(keyValueBuffer.get());
+      while (buffer.hasRemaining()) {
+        type = Type.fromCode(buffer.get());
+        if (type != Type.KEY_VALUE) {
+          throw new IllegalArgumentException("Invalid type");
+        }
+        buffer.getInt(); // skip key value length
+        
+        type = Type.fromCode(buffer.get());
         if (type != Type.KEY) {
           throw new IllegalArgumentException("Invalid type");
         }
-        int keySize = keyValueBuffer.getInt();
+        int keySize = buffer.getInt();
         byte[] keyVals = new byte[keySize];
-        keyValueBuffer.get(keyVals);
+        buffer.get(keyVals);
 
-        type = Type.fromCode(keyValueBuffer.get());
+        type = Type.fromCode(buffer.get());
         if (type != Type.VALUE) {
           throw new IllegalArgumentException("Invalid type");
         }
-        int valueSize = keyValueBuffer.getInt();
+        int valueSize = buffer.getInt();
         byte[] valueVals = new byte[valueSize];
-        keyValueBuffer.get(valueVals);
+        buffer.get(valueVals);
 
         keyValues.add(
             new KeyValue(new Key(ByteBuffer.wrap(keyVals)), new Value(ByteBuffer.wrap(valueVals))));

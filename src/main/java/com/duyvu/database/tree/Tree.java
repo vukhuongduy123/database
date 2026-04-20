@@ -4,6 +4,7 @@ import com.duyvu.database.schema.Type;
 import com.duyvu.database.utils.FileHandler;
 import com.duyvu.database.utils.PathUtils;
 import com.duyvu.database.utils.SearchUtils;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,11 +13,14 @@ import java.util.*;
 import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
 import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
 
+@Log4j2
 public final class Tree {
   private final Pager pager;
-  private static final int ORDER = 4;
-  private static final int MAX_KEYS = ORDER - 1;
-  private static final int MIN_KEYS = (int) (Math.ceil(ORDER / 2.0) - 1);
+  static final int ORDER = 100;
+  static final int MAX_KEYS = ORDER - 1;
+  static final int MIN_KEYS = (int) (Math.ceil(ORDER / 2.0) - 1);
+  static final int MAX_KEY_SIZE = 100;
+  static final int MAX_VALUE_SIZE = 1000;
 
   private record NodePath(InternalNode node, int childIndex) {}
 
@@ -346,8 +350,12 @@ public final class Tree {
     pager.writePage(sibling.getPageId(), sibling);
   }
 
-  // TODO: validate node size
   public void insert(Key key, Value value) {
+    if (key.getLength() > MAX_KEY_SIZE || value.getLength() > MAX_VALUE_SIZE) {
+      throw new IllegalArgumentException(
+          "Key or value is too long: " + key.getLength() + "," + value.getLength());
+    }
+
     if (pager.isEmpty()) {
       LeafNode root =
           new LeafNode(
@@ -378,6 +386,7 @@ public final class Tree {
         SearchUtils.search(keyValues.stream().map(KeyValue::key).toList(), key);
 
     if (searchResult.found()) {
+      log.warn("Duplicate key: {}", key.getValue());
       return; // no duplicates
     }
 
@@ -443,6 +452,9 @@ public final class Tree {
     List<KeyValue> keyValues = leaf.getKeyValues();
     int size = keyValues.size();
     int mid = keyValues.size() / 2;
+    if (mid == 0 || mid == size) {
+      throw new IllegalStateException("Invalid split");
+    }
 
     List<KeyValue> halfRightKeyValues = new ArrayList<>(keyValues.subList(mid, size));
     long oldNextId = leaf.getNextNodeId();
@@ -458,8 +470,8 @@ public final class Tree {
     leaf.setNextNodeId(newRight.getPageId());
     leaf.setKeyValues(new ArrayList<>(keyValues.subList(0, mid)));
 
-    pager.writePage(newRight.getPageId(), newRight);
     pager.writePage(leaf.getPageId(), leaf);
+    pager.writePage(newRight.getPageId(), newRight);
 
     return new SplitResult(halfRightKeyValues.getFirst().key(), newRight);
   }
@@ -607,5 +619,48 @@ public final class Tree {
     // reverse once
     Collections.reverse(keyValues);
     return keyValues;
+  }
+
+  public void logTree() {
+    StringBuilder sb = new StringBuilder();
+
+    Node root = pager.readPage(B_TREE_ROOT_NODE_ID);
+    Queue<Node> queue = new LinkedList<>();
+    queue.add(root);
+
+    while (!queue.isEmpty()) {
+      int size = queue.size();
+
+      for (int i = 0; i < size; i++) {
+        Node node = queue.poll();
+
+        assert node != null;
+        if (node.getType() == Type.LEAF_NODE) {
+          LeafNode leaf = (LeafNode) node;
+
+          sb.append("[");
+          for (KeyValue kv : leaf.getKeyValues()) {
+            sb.append(kv.key()).append(" ");
+          }
+          sb.append("] ");
+        } else {
+          InternalNode internal = (InternalNode) node;
+
+          sb.append("{");
+          for (Key key : internal.getKeys()) {
+            sb.append(key).append(" ");
+          }
+          sb.append("} ");
+
+          for (Long childId : internal.getChildrenIds()) {
+            queue.add(pager.readPage(childId));
+          }
+        }
+      }
+
+      sb.append("\n"); // new level
+    }
+
+    log.info(sb.toString());
   }
 }

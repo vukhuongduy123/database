@@ -7,6 +7,7 @@ import com.duyvu.database.command.UpdateCommand;
 import com.duyvu.database.evaluator.EvaluationContext;
 import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.evaluator.OperandNode;
+import com.duyvu.database.evaluator.OperatorNode;
 import com.duyvu.database.exception.DatabaseException;
 import com.duyvu.database.exception.ErrorCode;
 import com.duyvu.database.reader.HeaderReader;
@@ -181,6 +182,12 @@ class TableCommandHandler {
       log.debug(
           "Index column {} is not used in where expression, fallback to full scan",
           indexColumnName);
+      return selectNoIndex(table, columnNames, selectCommand);
+    }
+
+    if (selectCommand.whereExpression().containsOperator(OperatorNode.Operator.OR)) {
+      log.debug(
+          "Operator {} is used in where expression, fallback to full scan", OperatorNode.Operator.OR);
       return selectNoIndex(table, columnNames, selectCommand);
     }
 

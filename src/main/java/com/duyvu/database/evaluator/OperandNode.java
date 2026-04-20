@@ -4,7 +4,8 @@ import com.duyvu.database.schema.RecordValue;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public record OperandNode(String variable, Operand operand, RecordValue recordValue) implements Node {
+public record OperandNode(String variable, Operand operand, RecordValue recordValue)
+    implements Node {
   public enum Operand {
     EQ,
     NEQ,
@@ -87,5 +88,10 @@ public record OperandNode(String variable, Operand operand, RecordValue recordVa
       return this;
     }
     return null;
+  }
+
+  @Override
+  public boolean containsOperator(OperatorNode.Operator operator) {
+    return false;
   }
 }

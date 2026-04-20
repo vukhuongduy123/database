@@ -1,14 +1,13 @@
 package com.duyvu.database.tree;
 
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.nio.ByteBuffer;
 import java.util.List;
-
-import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -31,10 +30,15 @@ public class LeafNode extends Node implements TypeLengthValue {
 
   @Override
   public byte[] getValue() {
-    ByteBuffer buffer = ByteBuffer.allocate((Long.BYTES + META_DATA_LENGTH) // page id
-        + (Long.BYTES + META_DATA_LENGTH) // next page id
-        + (Long.BYTES + META_DATA_LENGTH) // previous page id
-        + keyValues.stream().map(TypeLengthValue::getLength).mapToInt(e -> e + META_DATA_LENGTH).sum()); // key values
+    ByteBuffer buffer =
+        ByteBuffer.allocate(
+            (Long.BYTES + META_DATA_LENGTH) // page id
+                + (Long.BYTES + META_DATA_LENGTH) // next page id
+                + (Long.BYTES + META_DATA_LENGTH) // previous page id
+                + keyValues.stream()
+                    .map(TypeLengthValue::getLength)
+                    .mapToInt(e -> e + META_DATA_LENGTH)
+                    .sum()); // key values
 
     buffer.put(Type.LONG.getCode());
     buffer.putInt(Long.BYTES);

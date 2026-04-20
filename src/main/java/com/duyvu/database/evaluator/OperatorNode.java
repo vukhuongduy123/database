@@ -38,4 +38,14 @@ public class OperatorNode implements Node {
 
     return null;
   }
+
+  @Override
+  public boolean containsOperator(Operator operator) {
+    if (this.operator == operator) {
+      return true;
+    }
+
+    return (left != null && left.containsOperator(operator))
+        || (right != null && right.containsOperator(operator));
+  }
 }

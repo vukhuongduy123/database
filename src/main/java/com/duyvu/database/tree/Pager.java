@@ -33,13 +33,20 @@ class Pager {
 
   @SneakyThrows
   public void writePage(long pageId, Node node) {
+    if (node.getLength() > B_TREE_NODE_SIZE) {
+      throw new IllegalArgumentException("Node size is too large");
+    }
+
     raf.seek(pageId);
     TypeLengthValueReader reader = new TypeLengthValueReader();
     raf.write(reader.read(node));
+    
+    // align with page size
+    raf.write(new byte[B_TREE_NODE_SIZE - node.getLength()]);
   }
 
   @SneakyThrows
   public long nextPageId() {
-    return raf.length() / B_TREE_NODE_SIZE + 1;
+    return raf.length();
   }
 }
