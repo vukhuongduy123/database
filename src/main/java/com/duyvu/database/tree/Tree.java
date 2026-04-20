@@ -441,7 +441,7 @@ public final class Tree {
     SearchResult searchResult = SearchUtils.search(parent.getKeys(), promoteKey);
     if (searchResult.found()) {
       // should NOT happen if no duplicates
-      throw new IllegalStateException("Duplicate key in internal node: " + promoteKey);
+      log.warn("Duplicate internal key: {}", promoteKey.getValue());
     }
     int idx = searchResult.index();
     parent.getKeys().add(idx, promoteKey);

@@ -39,10 +39,11 @@ class Pager {
 
     raf.seek(pageId);
     TypeLengthValueReader reader = new TypeLengthValueReader();
-    raf.write(reader.read(node));
+    byte[] nodeValues = reader.read(node);
+    raf.write(nodeValues);
     
     // align with page size
-    raf.write(new byte[B_TREE_NODE_SIZE - node.getLength()]);
+    raf.write(new byte[B_TREE_NODE_SIZE - nodeValues.length]);
   }
 
   @SneakyThrows
