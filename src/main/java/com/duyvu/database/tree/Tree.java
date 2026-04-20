@@ -313,10 +313,10 @@ public final class Tree {
   private boolean canBorrowFromSibling(Node node) {
     switch (node.getType()) {
       case INTERNAL_NODE -> {
-        return ((InternalNode) node).getKeys().size() < MIN_KEYS;
+        return ((InternalNode) node).getKeys().size() > MIN_KEYS;
       }
       case LEAF_NODE -> {
-        return ((LeafNode) node).getKeyValues().size() < MIN_KEYS;
+        return ((LeafNode) node).getKeyValues().size() > MIN_KEYS;
       }
       default -> throw new IllegalArgumentException("Unsupported node type: " + node.getType());
     }
