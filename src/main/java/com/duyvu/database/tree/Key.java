@@ -2,9 +2,10 @@ package com.duyvu.database.tree;
 
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
-import java.nio.ByteBuffer;
 
-public record Key(ByteBuffer val) implements TypeLengthValue, Comparable<Key> {
+import static java.util.Arrays.compareUnsigned;
+
+public record Key(byte[] val) implements TypeLengthValue, Comparable<Key> {
   @Override
   public Type getType() {
     return Type.KEY;
@@ -12,15 +13,11 @@ public record Key(ByteBuffer val) implements TypeLengthValue, Comparable<Key> {
 
   @Override
   public byte[] getValue() {
-    return val.array();
+    return val;
   }
 
   @Override
   public int compareTo(Key o) {
-    ByteBuffer a = this.val.duplicate();
-    ByteBuffer b = o.val.duplicate();
-    a.rewind();
-    b.rewind();
-    return a.compareTo(b);
+    return compareUnsigned(val, o.val);
   }
 }

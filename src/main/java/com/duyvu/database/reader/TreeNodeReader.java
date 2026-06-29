@@ -56,7 +56,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
           int keySize = buffer.getInt();
           byte[] keyVals = new byte[keySize];
           buffer.get(keyVals);
-          keys.add(new Key(ByteBuffer.wrap(keyVals)));
+          keys.add(new Key(keyVals));
         }
       }
 
@@ -119,7 +119,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
         buffer.get(valueVals);
 
         keyValues.add(
-            new KeyValue(new Key(ByteBuffer.wrap(keyVals)), new Value(ByteBuffer.wrap(valueVals))));
+            new KeyValue(new Key(keyVals), new Value(valueVals)));
       }
 
       return new LeafNode(pageId, previousNodeId, nextNodeId, keyValues);

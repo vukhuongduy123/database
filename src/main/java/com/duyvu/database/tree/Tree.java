@@ -423,16 +423,23 @@ public final class Tree {
 
     Node oldRoot = pager.readPage(B_TREE_ROOT_NODE_ID);
     // move the old root to the new page
-    long leftPageId = pager.nextPageId();
-    oldRoot.setPageId(leftPageId);
-    pager.writePage(leftPageId, oldRoot);
+    long newRootPageId = pager.nextPageId();
+    oldRoot.setPageId(newRootPageId);
+    pager.writePage(newRootPageId, oldRoot);
+    
+    // if the old right sibling was the old root's page id, repoint to new page id
+    if (oldRoot.getType() == Type.LEAF_NODE) {
+      LeafNode rightLeaf = (LeafNode) pager.readPage(((LeafNode) oldRoot).getNextNodeId());
+      rightLeaf.setPreviousNodeId(newRootPageId);
+      pager.writePage(rightLeaf.getPageId(), rightLeaf);
+    }
 
     // root split
     InternalNode newRoot =
         new InternalNode(
             B_TREE_ROOT_NODE_ID,
             new ArrayList<>(List.of(promoteKey)),
-            new ArrayList<>(List.of(leftPageId, rightPageId)));
+            new ArrayList<>(List.of(newRootPageId, rightPageId)));
 
     pager.writePage(B_TREE_ROOT_NODE_ID, newRoot);
   }

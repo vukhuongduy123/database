@@ -11,16 +11,34 @@ import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
 import lombok.extern.log4j.Log4j2;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Log4j2
 public class Main {
-  static void main() {
+  public static void deleteRecursively(Path path) throws IOException {
+    if (Files.notExists(path)) return;
+
+    try (Stream<Path> paths = Files.walk(path)) {
+      paths.sorted(Comparator.reverseOrder()) // delete children first
+          .forEach(p -> {
+            try {
+              Files.delete(p);
+            } catch (IOException e) {
+              throw new RuntimeException("Failed to delete: " + p, e);
+            }
+          });
+    }
+  }
+
+
+  static void main() throws IOException {
+    deleteRecursively(Path.of("./data"));
     List<ColumnDefinition> columnDefinitions = new ArrayList<>();
     {
       ColumnDefinition columnDefinition =
@@ -28,7 +46,7 @@ public class Main {
               new ColumnDefinition.ColumnName("name"),
               new ColumnDefinition.ColumnType(Type.STRING),
               new ColumnDefinition.ColumnAttribute(
-                  new byte[] {ColumnDefinition.ColumnAttribute.NULLABLE}));
+                  new byte[]{ColumnDefinition.ColumnAttribute.NULLABLE}));
       columnDefinitions.add(columnDefinition);
     }
 
@@ -38,7 +56,7 @@ public class Main {
               new ColumnDefinition.ColumnName("id"),
               new ColumnDefinition.ColumnType(Type.INT),
               new ColumnDefinition.ColumnAttribute(
-                  new byte[] {ColumnDefinition.ColumnAttribute.PRIMARY_KEY}));
+                  new byte[]{ColumnDefinition.ColumnAttribute.PRIMARY_KEY}));
       columnDefinitions.add(columnDefinition);
     }
 
