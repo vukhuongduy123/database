@@ -5,21 +5,20 @@ import static java.util.Arrays.compareUnsigned;
 
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
+import com.duyvu.database.utils.CollectionUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import com.duyvu.database.utils.CollectionUtils;
 import org.jspecify.annotations.NonNull;
 
 public record Key(Type dataType, byte[] value) implements TypeLengthValue, Comparable<Key> {
-  
+
   public static Key of(byte[] dataTypeAndValue) {
     byte dataType = dataTypeAndValue[0];
     byte[] value = new byte[dataTypeAndValue.length - 1];
     System.arraycopy(dataTypeAndValue, 1, value, 0, value.length);
     return new Key(Type.fromCode(dataType), value);
   }
-  
+
   @Override
   public Type getType() {
     return Type.KEY;

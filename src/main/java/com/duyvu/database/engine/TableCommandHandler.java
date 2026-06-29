@@ -193,7 +193,8 @@ class TableCommandHandler {
 
     Tree indexTree = table.getHeader().getIndexMap().get(indexColumnName);
     List<KeyValue> keyValues = new ArrayList<>();
-    Key searchKey = new Key(operandNode.recordValue().getType(), operandNode.recordValue().getValue());
+    Key searchKey =
+        new Key(operandNode.recordValue().getType(), operandNode.recordValue().getValue());
     switch (operandNode.operand()) {
       case EQ:
         {
