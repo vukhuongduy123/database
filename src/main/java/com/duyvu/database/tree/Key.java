@@ -1,9 +1,9 @@
 package com.duyvu.database.tree;
 
-import static java.util.Arrays.compareUnsigned;
-
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
+
+import static java.util.Arrays.compare;
 
 public record Key(byte[] val) implements TypeLengthValue, Comparable<Key> {
   @Override
@@ -18,6 +18,6 @@ public record Key(byte[] val) implements TypeLengthValue, Comparable<Key> {
 
   @Override
   public int compareTo(Key o) {
-    return compareUnsigned(val, o.val);
+    return compare(val, o.val);
   }
 }
