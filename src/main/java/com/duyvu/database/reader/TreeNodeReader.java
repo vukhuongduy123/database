@@ -54,9 +54,9 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
           childrenIds.add(buffer.getLong());
         } else {
           int keySize = buffer.getInt();
-          byte[] keyVals = new byte[keySize];
-          buffer.get(keyVals);
-          keys.add(new Key(keyVals));
+          byte[] keyValues = new byte[keySize];
+          buffer.get(keyValues);
+          keys.add(Key.of(keyValues));
         }
       }
 
@@ -118,7 +118,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
         byte[] valueVals = new byte[valueSize];
         buffer.get(valueVals);
 
-        keyValues.add(new KeyValue(new Key(keyVals), new Value(valueVals)));
+        keyValues.add(new KeyValue(Key.of(keyVals), new Value(valueVals)));
       }
 
       return new LeafNode(pageId, previousNodeId, nextNodeId, keyValues);

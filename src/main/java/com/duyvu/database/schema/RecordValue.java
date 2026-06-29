@@ -11,11 +11,11 @@ public class RecordValue implements TypeLengthValue {
 
   private Type toType(Object o) {
     return switch (o) {
-      case String ignored -> Type.STRING;
-      case Integer ignored -> Type.INT;
-      case Long ignored -> Type.LONG;
-      case Double ignored -> Type.DOUBLE;
-      case Float ignored -> Type.FLOAT;
+      case String _ -> Type.STRING;
+      case Integer _ -> Type.INT;
+      case Long _ -> Type.LONG;
+      case Double _ -> Type.DOUBLE;
+      case Float _ -> Type.FLOAT;
       default -> throw new IllegalArgumentException("Unsupported type: " + o.getClass().getName());
     };
   }

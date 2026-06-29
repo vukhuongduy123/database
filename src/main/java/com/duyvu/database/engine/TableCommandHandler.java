@@ -142,7 +142,7 @@ class TableCommandHandler {
           RecordValue recordValue = recordValueMap.get(columnDefinition.columnName().getName());
           Tree indexTree = indexMap.get(columnDefinition.columnName().getName());
           indexTree.insert(
-              new Key(recordValue.getValue()),
+              new Key(recordValue.getType(), recordValue.getValue()),
               new Value(ByteBuffer.allocate(Long.BYTES).putLong(rowOffset).array()));
         }
       }
@@ -193,7 +193,7 @@ class TableCommandHandler {
 
     Tree indexTree = table.getHeader().getIndexMap().get(indexColumnName);
     List<KeyValue> keyValues = new ArrayList<>();
-    Key searchKey = new Key(operandNode.recordValue().getValue());
+    Key searchKey = new Key(operandNode.recordValue().getType(), operandNode.recordValue().getValue());
     switch (operandNode.operand()) {
       case EQ:
         {
@@ -314,7 +314,7 @@ class TableCommandHandler {
           Tree indexTree = indexMap.get(columnDefinition.columnName().getName());
           Object value = row.getValues().get(columnDefinition.columnName().getName());
           RecordValue recordValue = new RecordValue(value);
-          indexTree.delete(new Key(recordValue.getValue()));
+          indexTree.delete(new Key(recordValue.getType(), recordValue.getValue()));
         }
       }
     }

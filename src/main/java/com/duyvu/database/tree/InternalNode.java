@@ -50,7 +50,7 @@ public class InternalNode extends Node {
     for (Key key : keys) {
       buffer.put(key.getType().getCode());
       buffer.putInt(key.getLength());
-      buffer.put(key.val());
+      buffer.put(key.getValue());
     }
 
     return buffer.array();
