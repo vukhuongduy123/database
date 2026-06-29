@@ -1,7 +1,5 @@
 package com.duyvu.database.engine;
 
-import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
-
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
@@ -27,6 +25,9 @@ import com.duyvu.database.utils.EnvironmentUtils;
 import com.duyvu.database.utils.FileHandler;
 import com.duyvu.database.utils.LRUCache;
 import com.duyvu.database.utils.PathUtils;
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -34,8 +35,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
+
+import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
 
 @Log4j2
 class TableCommandHandler {
@@ -208,6 +209,7 @@ class TableCommandHandler {
       case GTE:
         {
           keyValues.addAll(indexTree.greaterThanOrEqual(searchKey));
+          break;
         }
       case LT:
         {

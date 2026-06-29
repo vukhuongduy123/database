@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("com.diffplug.spotless") version "6.25.0"
+    id("com.diffplug.spotless") version "7.2.1"
     id("application")
 }
 
@@ -14,9 +14,6 @@ repositories {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.44")
     annotationProcessor("org.projectlombok:lombok:1.18.44")
-
-    testCompileOnly("org.projectlombok:lombok:1.18.44")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.44")
 
     implementation("org.apache.logging.log4j:log4j-api:2.25.3")
     implementation("org.apache.logging.log4j:log4j-core:2.25.3")

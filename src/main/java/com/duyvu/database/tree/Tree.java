@@ -88,6 +88,12 @@ public final class Tree {
     }
 
     keyValues.remove(searchResult.index());
+    // root can be underflow
+    if (paths.isEmpty()) {
+      pager.writePage(B_TREE_ROOT_NODE_ID, leaf);
+      return;
+    }
+
     if (!isUnderflow(leaf)) {
       pager.writePage(leaf.getPageId(), leaf);
       return;
@@ -145,7 +151,7 @@ public final class Tree {
     // 3. Remove the child pointer from its parent
     parent.getChildrenIds().remove(leafIndex);
 
-    // 4. Remove separator key
+    // 4. Remove the separator key
     parent.getKeys().remove(leafIndex - 1);
 
     // 5. Persist
@@ -625,48 +631,5 @@ public final class Tree {
     // reverse once
     Collections.reverse(keyValues);
     return keyValues;
-  }
-
-  public void logTree() {
-    StringBuilder sb = new StringBuilder();
-
-    Node root = pager.readPage(B_TREE_ROOT_NODE_ID);
-    Queue<Node> queue = new LinkedList<>();
-    queue.add(root);
-
-    while (!queue.isEmpty()) {
-      int size = queue.size();
-
-      for (int i = 0; i < size; i++) {
-        Node node = queue.poll();
-
-        assert node != null;
-        if (node.getType() == Type.LEAF_NODE) {
-          LeafNode leaf = (LeafNode) node;
-
-          sb.append("[");
-          for (KeyValue kv : leaf.getKeyValues()) {
-            sb.append(kv.key()).append(" ");
-          }
-          sb.append("] ");
-        } else {
-          InternalNode internal = (InternalNode) node;
-
-          sb.append("{");
-          for (Key key : internal.getKeys()) {
-            sb.append(key).append(" ");
-          }
-          sb.append("} ");
-
-          for (Long childId : internal.getChildrenIds()) {
-            queue.add(pager.readPage(childId));
-          }
-        }
-      }
-
-      sb.append("\n"); // new level
-    }
-
-    log.info(sb.toString());
   }
 }
