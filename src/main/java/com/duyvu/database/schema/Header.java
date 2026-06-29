@@ -1,9 +1,10 @@
 package com.duyvu.database.schema;
 
+import static com.duyvu.database.schema.Type.HEADER;
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+
 import com.duyvu.database.tree.Tree;
 import com.duyvu.database.utils.EnvironmentUtils;
-import lombok.Getter;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Paths;
@@ -11,9 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.duyvu.database.schema.Type.HEADER;
-import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+import lombok.Getter;
 
 @Getter
 public class Header implements TypeLengthValue {

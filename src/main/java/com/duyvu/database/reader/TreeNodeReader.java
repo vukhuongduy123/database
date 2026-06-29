@@ -94,14 +94,14 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
       // skip next page id length
       buffer.getInt();
       long nextNodeId = buffer.getLong();
-      
+
       while (buffer.hasRemaining()) {
         type = Type.fromCode(buffer.get());
         if (type != Type.KEY_VALUE) {
           throw new IllegalArgumentException("Invalid type");
         }
         buffer.getInt(); // skip key value length
-        
+
         type = Type.fromCode(buffer.get());
         if (type != Type.KEY) {
           throw new IllegalArgumentException("Invalid type");
@@ -118,8 +118,7 @@ public class TreeNodeReader implements Reader<ByteBuffer, Node> {
         byte[] valueVals = new byte[valueSize];
         buffer.get(valueVals);
 
-        keyValues.add(
-            new KeyValue(new Key(keyVals), new Value(valueVals)));
+        keyValues.add(new KeyValue(new Key(keyVals), new Value(valueVals)));
       }
 
       return new LeafNode(pageId, previousNodeId, nextNodeId, keyValues);

@@ -1,17 +1,16 @@
 package com.duyvu.database.tree;
 
+import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
+import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
+
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.utils.FileHandler;
 import com.duyvu.database.utils.PathUtils;
 import com.duyvu.database.utils.SearchUtils;
-import lombok.extern.log4j.Log4j2;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-
-import static com.duyvu.database.utils.Constants.B_TREE_ROOT_NODE_ID;
-import static com.duyvu.database.utils.Constants.B_TREE_UNKNOWN_NODE_ID;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public final class Tree {
@@ -426,7 +425,7 @@ public final class Tree {
     long newRootPageId = pager.nextPageId();
     oldRoot.setPageId(newRootPageId);
     pager.writePage(newRootPageId, oldRoot);
-    
+
     // if the old right sibling was the old root's page id, repoint to new page id
     if (oldRoot.getType() == Type.LEAF_NODE) {
       LeafNode rightLeaf = (LeafNode) pager.readPage(((LeafNode) oldRoot).getNextNodeId());

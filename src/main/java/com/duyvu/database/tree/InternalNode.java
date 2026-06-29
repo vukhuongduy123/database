@@ -1,14 +1,13 @@
 package com.duyvu.database.tree;
 
+import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
-import lombok.Getter;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
-
-import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
+import lombok.Getter;
 
 @Getter
 public class InternalNode extends Node {
