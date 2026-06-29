@@ -52,6 +52,7 @@ tasks.named<Jar>("jar") {
 // Spotless configuration
 spotless {
     java {
+        removeUnusedImports()
         googleJavaFormat("1.35.0")
         target("src/**/*.java")
         endWithNewline()
