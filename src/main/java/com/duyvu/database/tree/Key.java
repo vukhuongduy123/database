@@ -44,6 +44,14 @@ public record Key(Type dataType, byte[] value) implements TypeLengthValue, Compa
           Float.compare(
               ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getFloat(),
               ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getFloat());
+      case LONG ->
+          Long.compare(
+              ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getLong(),
+              ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getLong());
+      case INT ->
+          Integer.compare(
+              ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getInt(),
+              ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getInt());
       default -> compare(getValue(), o.getValue());
     };
   }
