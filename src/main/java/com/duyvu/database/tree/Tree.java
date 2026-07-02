@@ -625,11 +625,9 @@ public final class Tree {
     LeafNode current = leaf;
     while (current.getPreviousNodeId() != B_TREE_UNKNOWN_NODE_ID) {
       current = (LeafNode) pager.readPage(current.getPreviousNodeId());
-      keyValues.addAll(current.getKeyValues());
+      keyValues.addAll(0, current.getKeyValues());
     }
 
-    // reverse once
-    Collections.reverse(keyValues);
     return keyValues;
   }
 }
