@@ -1,6 +1,7 @@
 package com.duyvu.database.engine;
 
 import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
+import static com.duyvu.database.utils.Constants.UNLIMITED;
 
 import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
@@ -337,7 +338,12 @@ class TableCommandHandler {
   @SneakyThrows
   UpdateResult update(UpdateCommand updateCommand) {
     SelectResult selectResult =
-        select(new SelectCommand(updateCommand.tableName(), updateCommand.whereExpression()));
+        select(
+            SelectCommand.builder()
+                .tableName(updateCommand.tableName())
+                .whereExpression(updateCommand.whereExpression())
+                .limit(UNLIMITED)
+                .build());
 
     deleteRows(updateCommand.tableName(), selectResult.rows());
 

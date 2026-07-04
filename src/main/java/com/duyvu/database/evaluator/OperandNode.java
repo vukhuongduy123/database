@@ -1,18 +1,44 @@
 package com.duyvu.database.evaluator;
 
 import com.duyvu.database.schema.RecordValue;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public record OperandNode(String variable, Operand operand, RecordValue recordValue)
     implements Node {
+
+  @RequiredArgsConstructor
   public enum Operand {
-    EQ,
-    NEQ,
-    GT,
-    LT,
-    GTE,
-    LTE
+    EQ("="),
+    NEQ("!="),
+    GT(">"),
+    LT("<"),
+    GTE(">="),
+    LTE("<=");
+
+    private final String symbol;
+
+    private static final Map<String, Operand> SYMBOLS;
+
+    static {
+      Map<String, Operand> map = new HashMap<>();
+
+      for (Operand operand : Operand.values()) {
+        map.put(operand.symbol, operand);
+      }
+      SYMBOLS = Map.copyOf(map);
+    }
+
+    public static Operand fromSymbol(String symbol) {
+      return SYMBOLS.get(symbol);
+    }
+
+    public static String getAllSymbols() {
+      return String.join("", SYMBOLS.keySet());
+    }
   }
 
   @Override
