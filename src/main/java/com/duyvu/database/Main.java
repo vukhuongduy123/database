@@ -4,9 +4,7 @@ import com.duyvu.database.command.CreateTableCommand;
 import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
 import com.duyvu.database.engine.DatabaseEngine;
-import com.duyvu.database.evaluator.Node;
-import com.duyvu.database.evaluator.OperandNode;
-import com.duyvu.database.evaluator.OperatorNode;
+import com.duyvu.database.queryparser.QueryParser;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
 import java.io.IOException;
@@ -38,6 +36,11 @@ public class Main {
   }
 
   static void main() throws IOException {
+    SelectCommand selectCommand =
+        QueryParser.parseSelectQuery("SELECT * FROM test WHERE id < 99960 AND id >= 99950");
+
+    System.out.println(selectCommand);
+
     deleteRecursively(Path.of("./data"));
     List<ColumnDefinition> columnDefinitions = new ArrayList<>();
     {
@@ -79,15 +82,10 @@ public class Main {
     }
     Instant end = Instant.now();
     System.out.println("Time: " + Duration.between(start, end));
-    Node whereClause =
-        new OperatorNode(
-            OperatorNode.Operator.AND,
-            new OperandNode("id", OperandNode.Operand.LT, new RecordValue(99960)),
-            new OperandNode("id", OperandNode.Operand.GTE, new RecordValue(99950)));
 
     start = Instant.now();
-    SelectResult selectResult =
-        DatabaseEngine.getInstance().select(new SelectCommand("test", whereClause));
+
+    SelectResult selectResult = DatabaseEngine.getInstance().select(selectCommand);
     end = Instant.now();
     System.out.println("Time Select: " + Duration.between(start, end));
     System.out.println(selectResult.rows().getFirst());
