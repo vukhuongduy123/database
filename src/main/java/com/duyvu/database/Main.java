@@ -37,7 +37,8 @@ public class Main {
 
   static void main() throws IOException {
     SelectCommand selectCommand =
-        QueryParser.parseSelectQuery("SELECT * FROM test WHERE id < int(99960) AND id >= int(99950)");
+        QueryParser.parseSelectQuery(
+            "SELECT * FROM test WHERE id < int(99960) AND id >= int(99950)");
 
     System.out.println(selectCommand);
 
