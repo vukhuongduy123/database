@@ -35,24 +35,24 @@ public record Key(Type dataType, byte[] value) implements TypeLengthValue, Compa
       throw new IllegalArgumentException("Cannot compare keys of different types");
     }
     return switch (dataType) {
-      case STRING -> compareUnsigned(getValue(), o.getValue());
+      case STRING -> compareUnsigned(this.value, o.value);
       case DOUBLE ->
           Double.compare(
-              ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getDouble(),
-              ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getDouble());
+              ByteBuffer.wrap(this.value).order(ByteOrder.BIG_ENDIAN).getDouble(),
+              ByteBuffer.wrap(o.value).order(ByteOrder.BIG_ENDIAN).getDouble());
       case FLOAT ->
           Float.compare(
-              ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getFloat(),
-              ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getFloat());
+              ByteBuffer.wrap(this.value).order(ByteOrder.BIG_ENDIAN).getFloat(),
+              ByteBuffer.wrap(o.value).order(ByteOrder.BIG_ENDIAN).getFloat());
       case LONG ->
           Long.compare(
-              ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getLong(),
-              ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getLong());
+              ByteBuffer.wrap(this.value).order(ByteOrder.BIG_ENDIAN).getLong(),
+              ByteBuffer.wrap(o.value).order(ByteOrder.BIG_ENDIAN).getLong());
       case INT ->
           Integer.compare(
-              ByteBuffer.wrap(getValue()).order(ByteOrder.BIG_ENDIAN).getInt(),
-              ByteBuffer.wrap(o.getValue()).order(ByteOrder.BIG_ENDIAN).getInt());
-      default -> compare(getValue(), o.getValue());
+              ByteBuffer.wrap(this.value).order(ByteOrder.BIG_ENDIAN).getInt(),
+              ByteBuffer.wrap(o.value).order(ByteOrder.BIG_ENDIAN).getInt());
+      default -> compare(this.value, o.value);
     };
   }
 }
