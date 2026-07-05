@@ -99,38 +99,32 @@ public final class Tree {
       return;
     }
 
-    if (leaf.getPreviousNodeId() != B_TREE_UNKNOWN_NODE_ID) {
-      LeafNode leftNode = (LeafNode) pager.readPage(leaf.getPreviousNodeId());
+    NodePath nodePath = paths.pop();
+    InternalNode parent = nodePath.node;
+    int leafIndex = nodePath.childIndex;
+
+    if (leafIndex > 0) {
+      LeafNode leftNode = (LeafNode) pager.readPage(parent.getChildrenIds().get(leafIndex - 1));
       if (canBorrowFromSibling(leftNode)) {
-        NodePath nodePath = paths.pop();
-        InternalNode parent = nodePath.node;
-        int leafIndex = nodePath.childIndex;
         borrowFromLeftSibling(parent, leafIndex, leaf, leftNode);
         return;
       }
     }
 
-    if (leaf.getNextNodeId() != B_TREE_UNKNOWN_NODE_ID) {
-      LeafNode rightNode = (LeafNode) pager.readPage(leaf.getNextNodeId());
+    if (leafIndex < parent.getChildrenIds().size() - 1) {
+      LeafNode rightNode = (LeafNode) pager.readPage(parent.getChildrenIds().get(leafIndex + 1));
       if (canBorrowFromSibling(rightNode)) {
-        NodePath nodePath = paths.pop();
-        InternalNode parent = nodePath.node;
-        int leafIndex = nodePath.childIndex;
         borrowFromRightSibling(parent, leafIndex, leaf, rightNode);
         return;
       }
     }
 
-    NodePath nodePath = paths.pop();
-    InternalNode parent = nodePath.node;
-    int leafIndex = nodePath.childIndex;
-
     // Prefer merge with left
     if (leafIndex > 0) {
-      LeafNode leftNode = (LeafNode) pager.readPage(leaf.getPreviousNodeId());
+      LeafNode leftNode = (LeafNode) pager.readPage(parent.getChildrenIds().get(leafIndex - 1));
       mergeWithLeftSibling(parent, leafIndex, leaf, leftNode, paths);
     } else {
-      LeafNode rightNode = (LeafNode) pager.readPage(leaf.getNextNodeId());
+      LeafNode rightNode = (LeafNode) pager.readPage(parent.getChildrenIds().get(leafIndex + 1));
       mergeWithRightSibling(parent, leafIndex, leaf, rightNode, paths);
     }
   }
