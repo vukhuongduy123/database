@@ -45,10 +45,10 @@ jobs:
             set -e
 
             echo "Stopping database service..."
-            sudo systemctl stop database || true
+            sudo -n /usr/bin/systemctl stop database || true
 
             echo "Cleaning via systemd database-clean..."
-            sudo systemctl start database-clean
+            sudo -n /usr/bin/systemctl start database-clean
 
             echo "Clean complete."
 
@@ -73,6 +73,6 @@ jobs:
             set -e
 
             echo "Starting database service..."
-            sudo systemctl start database
+            sudo -n /usr/bin/systemctl start database
 
             echo "Deployment complete."
