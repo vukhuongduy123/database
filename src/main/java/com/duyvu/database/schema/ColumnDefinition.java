@@ -4,7 +4,6 @@ import static com.duyvu.database.utils.Constants.META_DATA_LENGTH;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.BitSet;
 import lombok.Data;
 
 public record ColumnDefinition(
@@ -94,25 +93,13 @@ public record ColumnDefinition(
 
   @Data
   public static class ColumnAttribute implements TypeLengthValue {
-    private BitSet attributes;
-    public static final byte NULLABLE = 0;
-    public static final byte PRIMARY_KEY = 1;
-    public static final byte INDEX = 2;
-
-    public ColumnAttribute(byte[] attributes) {
-      this.attributes = new BitSet(32);
-      for (byte attribute : attributes) {
-        this.attributes.set(attribute);
-      }
-    }
+    private int attributes;
+    public static final int NO_ATTRIBUTE = 1; // 1
+    public static final int PRIMARY_KEY = 1 << 1; // 2
+    public static final int INDEX = 1 << 2; // 4
 
     public ColumnAttribute(int value) {
-      attributes = new BitSet(32);
-      for (int i = 0; i < 32; i++) {
-        if ((value & (1 << i)) != 0) {
-          attributes.set(i);
-        }
-      }
+      attributes = value;
     }
 
     @Override
@@ -126,18 +113,13 @@ public record ColumnDefinition(
     }
 
     public boolean isIndex() {
-      return attributes.get(INDEX) || attributes.get(PRIMARY_KEY);
+      return (attributes & INDEX) != 0 || (attributes & PRIMARY_KEY) != 0;
     }
 
     @Override
     public byte[] getValue() {
       ByteBuffer buffer = ByteBuffer.allocate(32).order(ByteOrder.BIG_ENDIAN);
-
-      int value = 0;
-      for (int i = attributes.nextSetBit(0); i >= 0; i = attributes.nextSetBit(i + 1)) {
-        value |= (1 << i);
-      }
-      buffer.putInt(value);
+      buffer.putInt(attributes);
 
       return buffer.array();
     }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateTableCommand {
+public class CreateTableCommand implements Command {
   private String name;
   private Header header;
 }

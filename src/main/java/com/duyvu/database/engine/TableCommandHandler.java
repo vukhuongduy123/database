@@ -3,10 +3,7 @@ package com.duyvu.database.engine;
 import static com.duyvu.database.utils.Constants.UNKNOWN_OFFSET;
 import static com.duyvu.database.utils.Constants.UNLIMITED;
 
-import com.duyvu.database.command.CreateTableCommand;
-import com.duyvu.database.command.InsertCommand;
-import com.duyvu.database.command.SelectCommand;
-import com.duyvu.database.command.UpdateCommand;
+import com.duyvu.database.command.*;
 import com.duyvu.database.evaluator.EvaluationContext;
 import com.duyvu.database.evaluator.Node;
 import com.duyvu.database.evaluator.OperandNode;
@@ -297,7 +294,13 @@ class TableCommandHandler {
   }
 
   @SneakyThrows
-  DeleteResult delete(SelectCommand selectCommand) {
+  DeleteResult delete(DeleteCommand deleteCommand) {
+    SelectCommand selectCommand =
+        SelectCommand.builder()
+            .tableName(deleteCommand.tableName())
+            .whereExpression(deleteCommand.whereExpression())
+            .columnNames(List.of("*"))
+            .build();
     SelectResult selectResult = select(selectCommand);
     deleteRows(selectCommand.tableName(), selectResult.rows());
     deleteIndexRows(selectCommand.tableName(), selectResult.rows());

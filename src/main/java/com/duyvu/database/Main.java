@@ -5,6 +5,7 @@ import com.duyvu.database.command.InsertCommand;
 import com.duyvu.database.command.SelectCommand;
 import com.duyvu.database.engine.DatabaseEngine;
 import com.duyvu.database.queryparser.QueryParser;
+import com.duyvu.database.result.CreateTableResult;
 import com.duyvu.database.result.SelectResult;
 import com.duyvu.database.schema.*;
 import java.io.IOException;
@@ -37,37 +38,19 @@ public class Main {
 
   static void main() throws IOException {
     SelectCommand selectCommand =
-        QueryParser.parseSelectQuery(
-            "SELECT * FROM test WHERE id < int(99960) AND id >= int(99950)");
+        (SelectCommand)
+            QueryParser.parseCommand(
+                "SELECT * FROM test WHERE id < int(99960) AND id >= int(99950)");
 
     System.out.println(selectCommand);
 
     deleteRecursively(Path.of("./data"));
-    List<ColumnDefinition> columnDefinitions = new ArrayList<>();
-    {
-      ColumnDefinition columnDefinition =
-          new ColumnDefinition(
-              new ColumnDefinition.ColumnName("name"),
-              new ColumnDefinition.ColumnType(Type.STRING),
-              new ColumnDefinition.ColumnAttribute(
-                  new byte[] {ColumnDefinition.ColumnAttribute.NULLABLE}));
-      columnDefinitions.add(columnDefinition);
-    }
-
-    {
-      ColumnDefinition columnDefinition =
-          new ColumnDefinition(
-              new ColumnDefinition.ColumnName("id"),
-              new ColumnDefinition.ColumnType(Type.INT),
-              new ColumnDefinition.ColumnAttribute(
-                  new byte[] {ColumnDefinition.ColumnAttribute.PRIMARY_KEY}));
-      columnDefinitions.add(columnDefinition);
-    }
-
-    Header header = new Header(columnDefinitions);
     CreateTableCommand createTableCommand =
-        CreateTableCommand.builder().name("test").header(header).build();
-    Table table = DatabaseEngine.getInstance().createTable(createTableCommand);
+        (CreateTableCommand)
+            QueryParser.parseCommand("CREATE TABLE test (id INT 2, name STRING 1)");
+
+    Table table =
+        ((CreateTableResult) DatabaseEngine.getInstance().execute(createTableCommand)).table();
     System.out.println(table);
     table = DatabaseEngine.getInstance().readTable("test");
     System.out.println(table);
@@ -78,15 +61,18 @@ public class Main {
         log.info("Insert: {}", i);
       }
       InsertCommand insertCommand =
-          new InsertCommand("test", Map.of("id", i, "name", UUID.randomUUID().toString()));
-      DatabaseEngine.getInstance().insert(insertCommand);
+          (InsertCommand)
+              QueryParser.parseCommand(
+                  "INSERT INTO test (id, name) VALUES (int(%d), string(%s))"
+                      .formatted(i, UUID.randomUUID().toString()));
+      DatabaseEngine.getInstance().execute(insertCommand);
     }
     Instant end = Instant.now();
     System.out.println("Time: " + Duration.between(start, end));
 
     start = Instant.now();
 
-    SelectResult selectResult = DatabaseEngine.getInstance().select(selectCommand);
+    SelectResult selectResult = (SelectResult) DatabaseEngine.getInstance().execute(selectCommand);
     end = Instant.now();
     System.out.println("Time Select: " + Duration.between(start, end));
     System.out.println(selectResult.rows().getFirst());
