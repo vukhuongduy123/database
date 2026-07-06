@@ -18,4 +18,10 @@ public class TypeLengthValueReader implements Reader<TypeLengthValue, byte[]> {
 
     return buffer.array();
   }
+
+  public void readInto(TypeLengthValue tlv, ByteBuffer buffer) {
+    buffer.put(tlv.getType().getCode());
+    buffer.putInt(tlv.getLength());
+    buffer.put(tlv.getValue());
+  }
 }
