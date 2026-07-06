@@ -1,8 +1,8 @@
 package com.duyvu.database.schema;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +27,7 @@ public enum Type {
 
   private final byte code;
 
-  private static final Map<Byte, Type> CODE_MAP;
+  private static final Type[] CODES;
 
   private static final Map<String, Type> COLUM_TYPE_NAME_MAP =
       Map.of(
@@ -38,18 +38,14 @@ public enum Type {
           FLOAT.name(), FLOAT);
 
   static {
-    Map<Byte, Type> map = new HashMap<>();
+    CODES = new Type[Type.values().length];
     for (Type type : Type.values()) {
-      map.put(type.getCode(), type);
+      CODES[type.getCode() - 1] = type;
     }
-    CODE_MAP = Map.copyOf(map);
   }
 
   public static Type fromCode(byte code) {
-    if (!CODE_MAP.containsKey(code)) {
-      throw new IllegalArgumentException("Invalid type code " + code);
-    }
-    return CODE_MAP.get(code);
+    return CODES[code - 1];
   }
 
   public static Optional<Type> fromColumTypeName(String name) {

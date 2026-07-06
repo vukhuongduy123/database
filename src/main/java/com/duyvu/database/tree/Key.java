@@ -5,18 +5,29 @@ import static java.util.Arrays.compareUnsigned;
 
 import com.duyvu.database.schema.Type;
 import com.duyvu.database.schema.TypeLengthValue;
-import com.duyvu.database.utils.CollectionUtils;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.jspecify.annotations.NonNull;
 
-public record Key(Type dataType, byte[] value) implements TypeLengthValue, Comparable<Key> {
+public final class Key implements TypeLengthValue, Comparable<Key> {
+  private final Type dataType;
+  private final byte[] value;
+  private final byte[] dataTypeAndValue;
 
-  public static Key of(byte[] dataTypeAndValue) {
-    byte dataType = dataTypeAndValue[0];
-    byte[] value = new byte[dataTypeAndValue.length - 1];
-    System.arraycopy(dataTypeAndValue, 1, value, 0, value.length);
-    return new Key(Type.fromCode(dataType), value);
+  public Key(Type dataType, byte[] value) {
+    this.dataType = dataType;
+    this.value = value;
+    this.dataTypeAndValue = new byte[value.length + 1];
+    this.dataTypeAndValue[0] = dataType.getCode();
+    System.arraycopy(value, 0, this.dataTypeAndValue, 1, value.length);
+  }
+
+  public Key(byte[] dataTypeAndValue) {
+    this.dataTypeAndValue = dataTypeAndValue;
+    this.dataType = Type.fromCode(dataTypeAndValue[0]);
+    this.value = new byte[dataTypeAndValue.length - 1];
+    System.arraycopy(dataTypeAndValue, 1, this.value, 0, this.value.length);
   }
 
   @Override
@@ -26,7 +37,7 @@ public record Key(Type dataType, byte[] value) implements TypeLengthValue, Compa
 
   @Override
   public byte[] getValue() {
-    return CollectionUtils.concat(dataType.getCode(), value);
+    return dataTypeAndValue;
   }
 
   @Override
