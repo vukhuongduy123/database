@@ -14,11 +14,12 @@ repositories {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.44")
     annotationProcessor("org.projectlombok:lombok:1.18.44")
-
     implementation("org.apache.logging.log4j:log4j-api:2.26.0")
     implementation("org.apache.logging.log4j:log4j-core:2.26.0")
-
     implementation("com.google.mug:dot-parse:10.5")
+    implementation(platform("tools.jackson:jackson-bom:3.1.4"))
+    implementation("tools.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.core:jackson-annotations")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

@@ -20,7 +20,7 @@ public class Header implements TypeLengthValue {
   private final Map<String, ColumnDefinition> columnDefinitionMap;
   private final Map<String, Tree> indexMap;
 
-  public Header(List<ColumnDefinition> columnDefinitions) {
+  public Header(List<ColumnDefinition> columnDefinitions, String tableName) {
     this.columnDefinitions = columnDefinitions;
     columnDefinitionMap =
         columnDefinitions.stream()
@@ -35,7 +35,7 @@ public class Header implements TypeLengthValue {
                         new Tree(
                             Paths.get(
                                 EnvironmentUtils.getDatabasePath(),
-                                cd.columnName().getName() + "_idx.bin"))));
+                                tableName + "_" + cd.columnName().getName() + "_idx.bin"))));
   }
 
   @Override

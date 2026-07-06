@@ -1,3 +1,13 @@
 package com.duyvu.database.result;
 
-public record InsertResult() implements QueryResult {}
+import java.time.Duration;
+
+public record InsertResult(Duration executionTime) implements QueryResult {
+  public InsertResult() {
+    this(Duration.ZERO);
+  }
+
+  public InsertResult withExecutionTime(Duration executionTime) {
+    return new InsertResult(executionTime);
+  }
+}

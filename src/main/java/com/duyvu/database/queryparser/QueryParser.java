@@ -137,21 +137,24 @@ public final class QueryParser {
   static final Parser<ColumnDefinition.ColumnAttribute> COLUMN_ATTRIBUTE =
       digits().map(e -> new ColumnDefinition.ColumnAttribute(Integer.parseInt(e)));
 
-  static final Parser<Header> HEADER =
+  static final Parser<List<ColumnDefinition>> COLUMN_DEFINITIONS =
       sequence(
               IDENTIFIER,
               COLUMN_TYPE,
               COLUMN_ATTRIBUTE,
               (name, type, attribute) ->
                   new ColumnDefinition(new ColumnDefinition.ColumnName(name), type, attribute))
-          .atLeastOnceDelimitedBy(",")
-          .map(Header::new);
+          .atLeastOnceDelimitedBy(",");
 
   static final Parser<CreateTableCommand> CREATE_TABLE_QUERY =
       sequence(
           insensitiveKeyword("CREATE").then(insensitiveKeyword("TABLE")).then(IDENTIFIER),
-          HEADER.between("(", ")"),
-          (table, header) -> CreateTableCommand.builder().name(table).header(header).build());
+          COLUMN_DEFINITIONS.between("(", ")"),
+          (table, columnDefinitions) ->
+              CreateTableCommand.builder()
+                  .name(table)
+                  .header(new Header(columnDefinitions, table))
+                  .build());
 
   static final Parser<List<Object>> COLUMN_VALUES = COLUMN_VALUE.atLeastOnceDelimitedBy(",");
 

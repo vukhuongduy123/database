@@ -1,3 +1,7 @@
 package com.duyvu.database.result;
 
-public interface QueryResult {}
+import java.time.Duration;
+
+public interface QueryResult {
+  Duration executionTime();
+}

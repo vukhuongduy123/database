@@ -14,7 +14,8 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 class Pager {
   private final FileChannel fileChannel;
-  private final ByteBuffer pageBuffer = ByteBuffer.allocateDirect(B_TREE_NODE_SIZE).order(ByteOrder.BIG_ENDIAN);
+  private final ByteBuffer pageBuffer =
+      ByteBuffer.allocateDirect(B_TREE_NODE_SIZE).order(ByteOrder.BIG_ENDIAN);
 
   private static final byte[] ZERO_PAD = new byte[B_TREE_NODE_SIZE];
 

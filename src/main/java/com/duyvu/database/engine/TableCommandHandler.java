@@ -79,7 +79,7 @@ class TableCommandHandler {
       Path tablePath = getTablePath(tableName);
       RandomAccessFile raf = FileHandler.getInstance().getFileHandler(tablePath);
 
-      HeaderReader headerReader = new HeaderReader();
+      HeaderReader headerReader = new HeaderReader(tableName);
       Table table = new Table(headerReader.read(raf), tablePath, raf.getFilePointer());
       tableCache.put(tableName, table);
     }

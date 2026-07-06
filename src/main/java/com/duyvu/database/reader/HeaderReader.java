@@ -10,9 +10,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+@RequiredArgsConstructor
 public class HeaderReader implements Reader<RandomAccessFile, Header> {
+  private final String tableName;
 
   @Override
   @SneakyThrows
@@ -46,7 +49,7 @@ public class HeaderReader implements Reader<RandomAccessFile, Header> {
       columnDefinitions.add(converter.read(columnValue));
     }
 
-    return new Header(columnDefinitions);
+    return new Header(columnDefinitions, tableName);
   }
 
   static class ColumnDefinitionReader implements Reader<byte[], ColumnDefinition> {

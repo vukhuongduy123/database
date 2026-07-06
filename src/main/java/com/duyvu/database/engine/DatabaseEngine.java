@@ -3,6 +3,8 @@ package com.duyvu.database.engine;
 import com.duyvu.database.command.*;
 import com.duyvu.database.result.*;
 import com.duyvu.database.schema.Table;
+import java.time.Duration;
+import java.time.Instant;
 
 public final class DatabaseEngine {
   private final TableCommandHandler tableCommandHandler = new TableCommandHandler();
@@ -22,16 +24,34 @@ public final class DatabaseEngine {
   }
 
   public QueryResult execute(Command command) {
+    Instant start = Instant.now();
     return switch (command) {
       case InsertCommand insertCommand -> {
         tableCommandHandler.insert(insertCommand);
-        yield new InsertResult();
+        Instant end = Instant.now();
+        yield new InsertResult().withExecutionTime(Duration.between(start, end));
       }
-      case DeleteCommand deleteCommand -> tableCommandHandler.delete(deleteCommand);
-      case CreateTableCommand createTableCommand ->
-          new CreateTableResult(tableCommandHandler.createTable(createTableCommand));
-      case SelectCommand selectCommand -> tableCommandHandler.select(selectCommand);
-      case UpdateCommand updateCommand -> tableCommandHandler.update(updateCommand);
+      case DeleteCommand deleteCommand -> {
+        DeleteResult result = tableCommandHandler.delete(deleteCommand);
+        Instant end = Instant.now();
+        yield result.withExecutionTime(Duration.between(start, end));
+      }
+      case CreateTableCommand createTableCommand -> {
+        CreateTableResult result =
+            new CreateTableResult(tableCommandHandler.createTable(createTableCommand));
+        Instant end = Instant.now();
+        yield result.withExecutionTime(Duration.between(start, end));
+      }
+      case SelectCommand selectCommand -> {
+        SelectResult result = tableCommandHandler.select(selectCommand);
+        Instant end = Instant.now();
+        yield result.withExecutionTime(Duration.between(start, end));
+      }
+      case UpdateCommand updateCommand -> {
+        UpdateResult result = tableCommandHandler.update(updateCommand);
+        Instant end = Instant.now();
+        yield result.withExecutionTime(Duration.between(start, end));
+      }
       default -> throw new IllegalStateException("Unexpected value: " + command);
     };
   }
