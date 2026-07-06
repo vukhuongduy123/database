@@ -29,8 +29,6 @@ class Pager {
 
   @SneakyThrows
   public Node readPage(long pageId) {
-    fileChannel.position(pageId);
-
     pageBuffer.clear();
     readFully(pageBuffer, pageId);
     pageBuffer.flip();
@@ -50,8 +48,8 @@ class Pager {
     TypeLengthValueReader reader = new TypeLengthValueReader();
     reader.readInto(node, pageBuffer);
     pageBuffer.put(ZERO_PAD, 0, B_TREE_NODE_SIZE - pageBuffer.position());
-    writeFully(pageBuffer, pageId);
     pageBuffer.flip();
+    writeFully(pageBuffer, pageId);
   }
 
   @SneakyThrows
