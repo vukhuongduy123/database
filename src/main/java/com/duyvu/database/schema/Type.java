@@ -2,7 +2,6 @@ package com.duyvu.database.schema;
 
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
